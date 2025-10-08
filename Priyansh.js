@@ -3,7 +3,7 @@ const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } =
 const { join, resolve } = require("path");
 const { execSync } = require('child_process');
 const logger = require("./utils/log.js");
-const login = require("priyanshu-fca"); 
+const { login } = require("./kashif-raza-fca/module/index"); 
 const axios = require("axios");
 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies;
 const listbuiltinModules = require("module").builtinModules;
@@ -140,6 +140,13 @@ function onBot({ models: botModel }) {
         if (loginError) return logger(JSON.stringify(loginError), `ERROR`);
         loginApiData.setOptions(global.config.FCAOption)
         writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'))
+        
+        if (!loginApiData.removeUserFromGroup && loginApiData.gcmember) {
+            loginApiData.removeUserFromGroup = function(userID, threadID, callback) {
+                return loginApiData.gcmember("remove", userID, threadID, callback);
+            };
+        }
+        
         global.client.api = loginApiData
         global.config.version = '1.2.14'
         global.client.timeStart = new Date().getTime(),
