@@ -1,11 +1,10 @@
-
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
 
 module.exports.config = {
   name: "music",
-  version: "1.0.4",
+  version: "1.0.5",
   hasPermssion: 0,
   credits: "Kashif Raza",
   description: "Download YouTube song from keyword search",
@@ -17,25 +16,35 @@ module.exports.config = {
   }
 };
 
+module.exports.languages = {
+  "en": {
+    "missingInput": "Please provide a song name to search.",
+    "searching": "🔍 Searching for your song...",
+    "error": "Failed to download song: %1",
+    "success": "🎧 Song: %1\n\nHere is your audio 🎧",
+    "thumbnail": "🖤 Title: %1"
+  }
+};
+
 const formatMessage = (message) => {
   return `╔═══════☆♡☆═══════╗\n${message}\n╚═══════☆♡☆═══════╝`;
 };
 
-module.exports.run = async function({ api, event, args }) {
+module.exports.run = async function({ api, event, args, getText }) {
   const { threadID, messageID } = event;
   
   const songName = args.join(" ");
 
   if (!songName) {
     return api.sendMessage(
-      formatMessage("Please provide a song name to search."),
+      formatMessage(getText("missingInput")),
       threadID,
       messageID
     );
   }
 
   let processingMessage = await api.sendMessage(
-    formatMessage("🔍 Searching for your song..."),
+    formatMessage(getText("searching")),
     threadID,
     null,
     messageID
@@ -53,11 +62,15 @@ module.exports.run = async function({ api, event, args }) {
     ];
 
     const updateProgress = async (step) => {
-      const filled = Math.round((step.progress / 100) * progressBarLength);
-      const empty = progressBarLength - filled;
-      const progressBar = "█".repeat(filled) + "░".repeat(empty);
-      const message = formatMessage(`${step.message}\n\n${progressBar} ${step.progress}%`);
-      await api.editMessage(message, processingMessage.messageID);
+      try {
+        const filled = Math.round((step.progress / 100) * progressBarLength);
+        const empty = progressBarLength - filled;
+        const progressBar = "█".repeat(filled) + "░".repeat(empty);
+        const message = formatMessage(`${step.message}\n\n${progressBar} ${step.progress}%`);
+        await api.editMessage(message, processingMessage.messageID);
+      } catch (err) {
+        console.log("Progress update error:", err.message);
+      }
     };
 
     api.setMessageReaction("⌛", messageID, () => {}, true);
@@ -123,14 +136,17 @@ module.exports.run = async function({ api, event, args }) {
     api.setMessageReaction("✅", messageID, () => {}, true);
 
     await new Promise(resolve => setTimeout(resolve, animationSteps[5].delay));
-    await api.sendMessage(
+    
+    const sendResult = await api.sendMessage(
       {
         attachment: fs.createReadStream(downloadPath),
-        body: formatMessage(`🎧 Song: ${title}\n\nHere is your audio 🎧`)
+        body: formatMessage(getText("success", title))
       },
       threadID,
       messageID
     );
+    
+    console.log("Music sent successfully:", sendResult);
     
     let thumbPath = null;
     if (thumbnail) {
@@ -143,12 +159,12 @@ module.exports.run = async function({ api, event, args }) {
         await api.sendMessage(
           {
             attachment: fs.createReadStream(thumbPath),
-            body: formatMessage(`🖤 Title: ${title}`)
+            body: formatMessage(getText("thumbnail", title))
           },
           threadID
         );
       } catch (thumbError) {
-        console.log("Thumbnail download failed:", thumbError);
+        console.log("Thumbnail download failed:", thumbError.message);
       }
     }
     
@@ -158,15 +174,23 @@ module.exports.run = async function({ api, event, args }) {
         if (thumbPath && fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
         api.unsendMessage(processingMessage.messageID);
       } catch (cleanupError) {
-        console.log("Cleanup error:", cleanupError);
+        console.log("Cleanup error:", cleanupError.message);
       }
-    }, 3000);
+    }, 5000);
   } catch (error) {
     console.error(`Failed to download song: ${error.message}`);
     api.setMessageReaction("❌", messageID, () => {}, true);
-    await api.editMessage(
-      formatMessage(`Failed to download song: ${error.message}`),
-      processingMessage.messageID
-    );
+    try {
+      await api.editMessage(
+        formatMessage(getText("error", error.message)),
+        processingMessage.messageID
+      );
+    } catch (editErr) {
+      await api.sendMessage(
+        formatMessage(getText("error", error.message)),
+        threadID,
+        messageID
+      );
+    }
   }
 };
