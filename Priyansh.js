@@ -143,11 +143,8 @@ function onBot({ models: botModel }) {
     loginData['appState'] = appState;
     login(loginData, async(loginError, loginApiData) => {
         if (loginError) return logger(JSON.stringify(loginError), `ERROR`);
-        logger.loader("Setting FCA options...");
         loginApiData.setOptions(global.config.FCAOption)
-        logger.loader("Saving appstate...");
         writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'))
-        logger.loader("Starting to load commands and events...");
         
         if (!loginApiData.removeUserFromGroup && loginApiData.gcmember) {
             loginApiData.removeUserFromGroup = function(userID, threadID, callback) {
@@ -159,12 +156,9 @@ function onBot({ models: botModel }) {
         global.config.version = '1.2.14'
         global.client.timeStart = new Date().getTime(),
             function () {
-                logger.loader("Loading commands...");
                 const listCommand = readdirSync(global.client.mainPath + '/Priyansh/commands').filter(command => command.endsWith('.js') && !command.includes('example') && !global.config.commandDisabled.includes(command));
-                logger.loader(`Found ${listCommand.length} commands to load`);
                 for (const command of listCommand) {
                     try {
-                        logger.loader(`Loading command: ${command}`);
                         var module = require(global.client.mainPath + '/Priyansh/commands/' + command);
                         if (!module.config || !module.run || !module.config.commandCategory) throw new Error(global.getText('priyansh', 'errorFormat'));
                         if (global.client.commands.has(module.config.name || '')) throw new Error(global.getText('priyansh', 'nameExist'));
@@ -228,7 +222,6 @@ function onBot({ models: botModel }) {
                 }
             }(),
             function() {
-                logger.loader("Loading events...");
                 const events = readdirSync(global.client.mainPath + '/Priyansh/events').filter(event => event.endsWith('.js') && !global.config.eventDisabled.includes(event));
                 for (const ev of events) {
                     try {
@@ -295,7 +288,6 @@ function onBot({ models: botModel }) {
         logger.loader('===== [ ' + (Date.now() - global.client.timeStart) + 'ms ] =====')
         writeFileSync(global.client['configPath'], JSON['stringify'](global.config, null, 4), 'utf8') 
         unlinkSync(global['client']['configPath'] + '.temp');        
-        logger.loader("Setting up listener...");
         const listenerData = {};
         listenerData.api = loginApiData; 
         listenerData.models = botModel;
@@ -307,17 +299,13 @@ function onBot({ models: botModel }) {
             if (global.config.DeveloperMode == !![]) console.log(message);
             return listener(message);
         };
-        logger.loader("Starting MQTT listener...");
         global.handleListen = loginApiData.listenMqtt(listenerCallback);
-        logger.loader("MQTT listener started!");
         try {
             await checkBan(loginApiData);
         } catch (error) {
-            logger.loader("checkBan error: " + error.message, "error");
             return //process.exit(0);
         };
         if (!global.checkBan) logger(global.getText('priyansh', 'warningSourceCode'), '[ GLOBAL BAN ]');
-        logger.loader("Bot is now listening for messages!", "success");
     });
 }
 

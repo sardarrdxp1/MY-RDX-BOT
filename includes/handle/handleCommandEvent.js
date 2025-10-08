@@ -39,7 +39,7 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
                 Obj.getText = getText2;
                 if (cmd) cmd.handleEvent(Obj);
             } catch (error) {
-                logger(global.getText('handleCommandEvent', 'moduleError', cmd.config.name), 'error');
+                logger(global.getText('handleCommandEvent', 'moduleError', cmd.config.name, error.message || error), 'error');
             }
         }
     };
