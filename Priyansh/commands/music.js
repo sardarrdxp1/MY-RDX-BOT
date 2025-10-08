@@ -10,14 +10,13 @@ module.exports.config = {
   credits: "Kashif Raza",
   description: "Download YouTube song from keyword search",
   commandCategory: "media",
-  usages: "[songName] or [songName] [audio/video]",
+  usages: "[songName]",
   cooldowns: 10,
   dependencies: {
     "axios": ""
   }
 };
 
-// Unicode Bold Converter
 const boldUnicode = (text) => {
   const boldMap = {
     'a': '𝗮', 'b': '𝗯', 'c': '𝗰', 'd': '𝗱', 'e': '𝗲', 'f': '𝗳', 'g': '𝗴', 'h': '𝗵', 'i': '𝗶',
@@ -32,7 +31,6 @@ const boldUnicode = (text) => {
   return text.split('').map(char => boldMap[char] || char).join('');
 };
 
-// Format message with decorative borders
 const formatMessage = (message) => {
   const lines = message.split('\n');
   const boldLines = lines.map(line => boldUnicode(line));
@@ -43,14 +41,7 @@ const formatMessage = (message) => {
 module.exports.run = async function({ api, event, args }) {
   const { threadID, messageID } = event;
   
-  let songName, type;
-  if (args.length > 1 && (args[args.length - 1] === "audio" || args[args.length - 1] === "video")) {
-    type = args.pop();
-    songName = args.join(" ");
-  } else {
-    songName = args.join(" ");
-    type = "audio";
-  }
+  const songName = args.join(" ");
 
   if (!songName) {
     return api.sendMessage(
@@ -152,7 +143,7 @@ module.exports.run = async function({ api, event, args }) {
     await api.sendMessage(
       {
         attachment: fs.createReadStream(downloadPath),
-        body: formatMessage(`🎧 Song: ${title}\n\nHere is your ${type === "audio" ? "audio" : "video"} 🎧`)
+        body: formatMessage(`🎧 Song: ${title}\n\nHere is your audio 🎧`)
       },
       threadID,
       messageID
