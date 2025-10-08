@@ -6,7 +6,7 @@
 
 "use strict";
 
-const utils = require("../utils");
+const utils = require('../../../utils');
 // @NethWs3Dev
 
 function formatData(resData) {

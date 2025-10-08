@@ -5,7 +5,7 @@
  * @author https://github.com/Schmavery/facebook-chat-api/pull/865
  */
 
-const utils = require("../utils");
+const utils = require('../../../utils');
 // @NethWs3Dev
 
 function formatMessage(threadID, data) {

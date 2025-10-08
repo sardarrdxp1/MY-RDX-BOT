@@ -1,5 +1,5 @@
 "use strict";
-var utils = require("../utils");
+var utils = require('../../../utils');
 // @NethWs3Dev
 var mqtt = require('mqtt');
 var websocket = require('websocket-stream');
