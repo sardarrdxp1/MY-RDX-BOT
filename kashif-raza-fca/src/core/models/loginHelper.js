@@ -92,7 +92,11 @@ async function loginHelper(credentials, globalOptions, callback, setOptionsFunc,
             };
         }
 
-        const resp = await utils.get(fbLinkFunc(), jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar));
+        utils.log("Fetching Facebook page...");
+        const resp = await utils.get(fbLinkFunc(), jar, null, globalOptions, { noRef: true }).then(utils.saveCookies(jar)).catch(err => {
+            throw new Error(`Failed to connect to Facebook: ${err.message}`);
+        });
+        utils.log("Facebook page fetched successfully");
         const extractNetData = (html) => {
             const allScriptsData = [];
             const scriptRegex = /<script type="application\/json"[^>]*>(.*?)<\/script>/g;
@@ -108,6 +112,7 @@ async function loginHelper(credentials, globalOptions, callback, setOptionsFunc,
         };
 
         const netData = extractNetData(resp.body);
+        utils.log("Building API...");
 
         const [newCtx, newDefaultFuncs] = await buildAPIFunc(resp.body, jar, netData, globalOptions, fbLinkFunc, errorRetrievingMsg);
         ctx = newCtx;
@@ -153,10 +158,12 @@ async function loginHelper(credentials, globalOptions, callback, setOptionsFunc,
 
         api.getCurrentUserID = () => ctx.userID;
         api.getOptions = (key) => key ? globalOptions[key] : globalOptions;
+        utils.log("Loading API modules...");
         loadApiModules();
         api.ctx = ctx;
         api.defaultFuncs = defaultFuncs;
         api.globalOptions = globalOptions;
+        utils.log("Login successful!");
         
         return callback(null, api);
     } catch (error) {

@@ -1,5 +1,3 @@
-const { formatMessage } = require('../../utils/formatter');
-
 module.exports.config = {
     name: "out",
     version: "1.0.0",
