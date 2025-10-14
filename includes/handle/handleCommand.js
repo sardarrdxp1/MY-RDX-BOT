@@ -13,6 +13,10 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
     var { body, senderID, threadID, messageID } = event;
     var senderID = String(senderID),
       threadID = String(threadID);
+    
+    // Check if body exists and is a string
+    if (!body || typeof body !== 'string') return;
+    
     const threadSetting = threadData.get(threadID) || {}
     const prefixRegex = new RegExp(`^(<@!?${senderID}>|${escapeRegex((threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : PREFIX)})\\s*`);
     if (!prefixRegex.test(body)) return;

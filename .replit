@@ -1,21 +1,14 @@
-entrypoint = "index.js"
-modules = ["nodejs-22"]
-hidden = [".config", "package-lock.json"]
-
-[gitHubImport]
-requiredFiles = [".replit", "replit.nix", "package.json", "package-lock.json"]
-
-[nix]
-channel = "stable-24_11"
-packages = ["unzip"]
-
-[deployment]
-run = ["node", "index.js"]
-deploymentTarget = "autoscale"
-ignorePorts = false
+modules = ["nodejs-20"]
 
 [agent]
 expertMode = true
+
+[[ports]]
+localPort = 8080
+externalPort = 80
+
+[nix]
+packages = ["unzipNLS"]
 
 [workflows]
 runButton = "Project"
@@ -35,7 +28,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node Priyansh.js"
+args = "node index.js"
 
 [workflows.workflow.metadata]
 outputType = "console"
