@@ -13,10 +13,10 @@ module.exports.run = async ({ api, event, args }) => {
     const axios = require('axios');
     const fs = require('fs-extra');
     const { threadID, messageID } = event;
-    
+
     try {
         const query = args.join(" ");
-        
+
         if (!query) {
             return api.sendMessage("Please provide a video name!\n\nExample: /video Saiyaara", threadID, messageID);
         }
@@ -34,23 +34,22 @@ module.exports.run = async ({ api, event, args }) => {
         }
 
         const firstResult = searchResponse.data.result[0];
-        
+
         // Update message with download status
         api.unsendMessage(searchMsg.messageID);
         const downloadMsg = await api.sendMessage("Downloading: " + firstResult.title + "\nDuration: " + firstResult.duration + "\nPlease wait...", threadID);
 
         // Download the video
-        const downloadUrl = `https://apis-keith.vercel.app/download/ytmp4?url=${encodeURIComponent(firstResult.url)}`;
+        const downloadUrl = `https://apis-keith.vercel.app/download/mp4?url=${encodeURIComponent(firstResult.url)}`;
         const downloadResponse = await axios.get(downloadUrl);
 
-        if (!downloadResponse.data.status || !downloadResponse.data.result) {
+        if (!downloadResponse.data.status || !downloadResponse.data.download_url) {
             api.unsendMessage(downloadMsg.messageID);
             return api.sendMessage("Failed to download the video!", threadID, messageID);
         }
 
-        const videoData = downloadResponse.data.result;
-        const videoUrl = videoData.url;
-        const filePath = __dirname + `/cache/video_${Date.now()}.${videoData.format || 'mp4'}`;
+        const videoUrl = downloadResponse.data.download_url;
+        const filePath = __dirname + `/cache/video_${Date.now()}.mp4`;
 
         // Download video file to cache
         const videoResponse = await axios.get(videoUrl, { responseType: 'arraybuffer' });
@@ -62,7 +61,7 @@ module.exports.run = async ({ api, event, args }) => {
             body: firstResult.title + "\nDuration: " + firstResult.duration + "\nViews: " + parseInt(firstResult.views).toLocaleString() + "\nPublished: " + firstResult.published,
             attachment: fs.createReadStream(filePath)
         }, threadID, messageID);
-        
+
         // Delete file after sending
         fs.unlinkSync(filePath);
 

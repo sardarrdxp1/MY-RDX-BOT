@@ -1,13 +1,13 @@
-/** dont change credits please **/
+
 module.exports.config = {
-    name: "kiss",
-    version: "2.0.0",
+    name: "pair",
+    version: "1.0.0",
     hasPermssion: 0,
     credits: "RDX_ZAIN",
-    description: "Kiss the person you want",
+    description: "Find your perfect match",
     commandCategory: "Love",
-    usages: "kiss [tag]",
-    cooldowns: 5,
+    usages: "pair [tag someone or leave empty]",
+    cooldowns: 10,
     dependencies: {
         "axios": "",
         "fs-extra": "",
@@ -21,7 +21,7 @@ module.exports.onLoad = async() => {
     const { existsSync, mkdirSync } = global.nodemodule["fs-extra"];
     const { downloadFile } = global.utils;
     const dirMaterial = __dirname + `/cache/`;
-    const path = resolve(__dirname, 'cache', 'hon0.jpeg');
+    const path = resolve(__dirname, 'cache', 'pair.png');
     if (!existsSync(dirMaterial + "")) mkdirSync(dirMaterial, { recursive: true });
     if (!existsSync(path)) await downloadFile("https://i.imgur.com/j96ooUs.jpeg", path);
 }
@@ -33,27 +33,27 @@ async function makeImage({ one, two }) {
     const jimp = global.nodemodule["jimp"];
     const __root = path.resolve(__dirname, "cache");
 
-    let hon_img = await jimp.read(__root + "/hon0.jpeg");
-    let pathImg = __root + `/hon0_${one}_${two}.jpeg`;
+    let pair_img = await jimp.read(__root + "/pair.png");
+    let pathImg = __root + `/pair_${one}_${two}.png`;
     let avatarOne = __root + `/avt_${one}.png`;
     let avatarTwo = __root + `/avt_${two}.png`;
-
+    
     let getAvatarOne = (await axios.get(`https://graph.facebook.com/${one}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
     fs.writeFileSync(avatarOne, Buffer.from(getAvatarOne, 'utf-8'));
-
+    
     let getAvatarTwo = (await axios.get(`https://graph.facebook.com/${two}/picture?width=512&height=512&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662`, { responseType: 'arraybuffer' })).data;
     fs.writeFileSync(avatarTwo, Buffer.from(getAvatarTwo, 'utf-8'));
-
+    
     let circleOne = await jimp.read(await circle(avatarOne));
     let circleTwo = await jimp.read(await circle(avatarTwo));
-    hon_img.resize(700, 440).composite(circleOne.resize(150, 150), 390, 23).composite(circleTwo.resize(150, 150), 115, 130);
-
-    let raw = await hon_img.getBufferAsync("image/png");
-
+    pair_img.resize(700, 440).composite(circleOne.resize(150, 150), 100, 150).composite(circleTwo.resize(150, 150), 450, 150);
+    
+    let raw = await pair_img.getBufferAsync("image/png");
+    
     fs.writeFileSync(pathImg, raw);
     fs.unlinkSync(avatarOne);
     fs.unlinkSync(avatarTwo);
-
+    
     return pathImg;
 }
 
@@ -64,23 +64,46 @@ async function circle(image) {
     return await image.getBufferAsync("image/png");
 }
 
-module.exports.run = async function ({ event, api, args, Currencies }) { 
+module.exports.run = async function ({ event, api, args, Currencies, Users }) { 
     const fs = global.nodemodule["fs-extra"];
-    const hc = Math.floor(Math.random() * 101);
-    const rd = Math.floor(Math.random() * 100000) + 100000;
-    const { threadID, messageID, senderID } = event;
+    const { threadID, messageID, senderID, participantIDs } = event;
     const mention = Object.keys(event.mentions);
-
-    var one = senderID, two = mention[0];
-    await Currencies.increaseMoney(event.senderID, parseInt(hc * rd));
-
-    if (!two) return api.sendMessage("Please tag 1 person", threadID, messageID);
-    else {
-        return makeImage({ one, two }).then(path => 
-            api.sendMessage({
-                body: `[❤️] The level of affection between you and that person is: ${hc} %\n[❤️] The two of you are blessed by BOT: ${((hc) * rd)} $\n[❤️] Wish you happy 🍀`, 
-                attachment: fs.createReadStream(path)
-            }, threadID, () => fs.unlinkSync(path), messageID)
-        );
+    
+    var one = senderID;
+    var two;
+    
+    if (mention[0]) {
+        two = mention[0];
+    } else {
+        // Random pair from group
+        const allUsers = participantIDs.filter(id => id !== senderID);
+        two = allUsers[Math.floor(Math.random() * allUsers.length)];
     }
-}
+    
+    const matchPercent = Math.floor(Math.random() * 101);
+    const name1 = await Users.getNameUser(one);
+    const name2 = await Users.getNameUser(two);
+    
+    let msg = `💑 Perfect Match 💑\n\n`;
+    msg += `${name1} ❤️ ${name2}\n\n`;
+    msg += `Match Percentage: ${matchPercent}%\n`;
+    
+    if (matchPercent < 30) {
+        msg += `Status: Just Friends 👫`;
+    } else if (matchPercent < 60) {
+        msg += `Status: Good Match 💕`;
+    } else if (matchPercent < 80) {
+        msg += `Status: Great Match 💖`;
+    } else {
+        msg += `Status: Perfect Couple 💗`;
+    }
+    
+    return makeImage({ one, two }).then(path => 
+        api.sendMessage({
+            body: msg, 
+            attachment: fs.createReadStream(path)
+        }, threadID, () => fs.unlinkSync(path), messageID)
+    ).catch(err => {
+        api.sendMessage(`💑 Perfect Match 💑\n\n${name1} ❤️ ${name2}\n\nMatch Percentage: ${matchPercent}%`, threadID, messageID);
+    });
+};
