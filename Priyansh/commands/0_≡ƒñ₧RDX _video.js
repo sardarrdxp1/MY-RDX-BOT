@@ -1,4 +1,3 @@
-
 module.exports.config = {
     name: "video",
     version: "2.0.0",
@@ -14,10 +13,10 @@ module.exports.run = async ({ api, event, args }) => {
     const axios = require('axios');
     const fs = require('fs-extra');
     const { threadID, messageID } = event;
-    
+
     try {
         const query = args.join(" ");
-        
+
         if (!query) {
             return api.sendMessage("Please provide a video name!\n\nExample: /video Saiyaara", threadID, messageID);
         }
@@ -36,7 +35,7 @@ module.exports.run = async ({ api, event, args }) => {
 
         const firstResult = searchResponse.data.result[0];
         const videoUrl = firstResult.url;
-        
+
         // Update message with download status
         api.editMessage("📥 Downloading: " + firstResult.title + "\nDuration: " + firstResult.duration + "\nPlease wait...", searchMsg.messageID);
 
@@ -44,16 +43,22 @@ module.exports.run = async ({ api, event, args }) => {
         const downloadUrl = `https://apis-keith.vercel.app/download/mp4?url=${encodeURIComponent(videoUrl)}`;
         const downloadResponse = await axios.get(downloadUrl);
 
-        if (!downloadResponse.data.status || !downloadResponse.data.result || !downloadResponse.data.result.download_url) {
+        if (!downloadResponse.data.status || !downloadResponse.data.result || !downloadResponse.data.result.url) {
             api.unsendMessage(searchMsg.messageID);
-            return api.sendMessage("❌ Failed to download the video!", threadID, messageID);
+            return api.sendMessage("❌ Failed to get download link from API!", threadID, messageID);
         }
 
-        const finalVideoUrl = downloadResponse.data.result.download_url;
+        const finalVideoUrl = downloadResponse.data.result.url;
         const filePath = __dirname + `/cache/video_${Date.now()}.mp4`;
 
         // Download video file to cache
-        const videoData = await axios.get(finalVideoUrl, { responseType: 'arraybuffer' });
+        const videoData = await axios.get(finalVideoUrl, {
+            responseType: 'arraybuffer',
+            timeout: 60000,
+            maxContentLength: Infinity,
+            maxBodyLength: Infinity
+        });
+
         fs.writeFileSync(filePath, Buffer.from(videoData.data));
 
         // Send the video file
@@ -62,7 +67,7 @@ module.exports.run = async ({ api, event, args }) => {
             body: "🎬 " + firstResult.title + "\n⏱️ Duration: " + firstResult.duration + "\n👀 Views: " + parseInt(firstResult.views).toLocaleString() + "\n📅 Published: " + firstResult.published,
             attachment: fs.createReadStream(filePath)
         }, threadID, messageID);
-        
+
         // Delete file after sending
         fs.unlinkSync(filePath);
 
