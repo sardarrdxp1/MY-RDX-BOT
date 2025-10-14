@@ -58,7 +58,7 @@ async function makeImage({ one, two }) {
 }
 
 async function circle(image) {
-    const jimp = require("jimp");
+    const jimp = global.nodemodule["jimp"];
     image = await jimp.read(image);
     image.circle();
     return await image.getBufferAsync("image/png");
@@ -69,41 +69,46 @@ module.exports.run = async function ({ event, api, args, Currencies, Users }) {
     const { threadID, messageID, senderID, participantIDs } = event;
     const mention = Object.keys(event.mentions);
     
-    var one = senderID;
-    var two;
-    
-    if (mention[0]) {
-        two = mention[0];
-    } else {
-        // Random pair from group
-        const allUsers = participantIDs.filter(id => id !== senderID);
-        two = allUsers[Math.floor(Math.random() * allUsers.length)];
-    }
-    
-    const matchPercent = Math.floor(Math.random() * 101);
-    const name1 = await Users.getNameUser(one);
-    const name2 = await Users.getNameUser(two);
-    
-    let msg = `💑 Perfect Match 💑\n\n`;
-    msg += `${name1} ❤️ ${name2}\n\n`;
-    msg += `Match Percentage: ${matchPercent}%\n`;
-    
-    if (matchPercent < 30) {
-        msg += `Status: Just Friends 👫`;
-    } else if (matchPercent < 60) {
-        msg += `Status: Good Match 💕`;
-    } else if (matchPercent < 80) {
-        msg += `Status: Great Match 💖`;
-    } else {
-        msg += `Status: Perfect Couple 💗`;
-    }
-    
-    return makeImage({ one, two }).then(path => 
-        api.sendMessage({
+    try {
+        var one = senderID;
+        var two;
+        
+        if (mention[0]) {
+            two = mention[0];
+        } else {
+            // Random pair from group
+            const allUsers = participantIDs.filter(id => id !== senderID);
+            two = allUsers[Math.floor(Math.random() * allUsers.length)];
+        }
+        
+        const matchPercent = Math.floor(Math.random() * 101);
+        const name1 = await Users.getNameUser(one);
+        const name2 = await Users.getNameUser(two);
+        
+        let msg = `💑 Perfect Match 💑\n\n`;
+        msg += `${name1} ❤️ ${name2}\n\n`;
+        msg += `Match Percentage: ${matchPercent}%\n`;
+        
+        if (matchPercent < 30) {
+            msg += `Status: Just Friends 👫`;
+        } else if (matchPercent < 60) {
+            msg += `Status: Good Match 💕`;
+        } else if (matchPercent < 80) {
+            msg += `Status: Great Match 💖`;
+        } else {
+            msg += `Status: Perfect Couple 💗`;
+        }
+        
+        const path = await makeImage({ one, two });
+        return api.sendMessage({
             body: msg, 
             attachment: fs.createReadStream(path)
-        }, threadID, () => fs.unlinkSync(path), messageID)
-    ).catch(err => {
-        api.sendMessage(`💑 Perfect Match 💑\n\n${name1} ❤️ ${name2}\n\nMatch Percentage: ${matchPercent}%`, threadID, messageID);
-    });
+        }, threadID, () => fs.unlinkSync(path), messageID);
+        
+    } catch (error) {
+        console.error("Canvas Error in pair command:", error);
+        const name1 = await Users.getNameUser(senderID).catch(() => "User");
+        const name2 = await Users.getNameUser(two || senderID).catch(() => "User");
+        return api.sendMessage(`💑 Perfect Match 💑\n\n${name1} ❤️ ${name2}\n\n❌ Image creation failed but here's your match!`, threadID, messageID);
+    }
 };

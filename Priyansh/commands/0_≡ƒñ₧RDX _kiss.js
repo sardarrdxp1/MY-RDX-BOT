@@ -58,7 +58,7 @@ async function makeImage({ one, two }) {
 }
 
 async function circle(image) {
-    const jimp = require("jimp");
+    const jimp = global.nodemodule["jimp"];
     image = await jimp.read(image);
     image.circle();
     return await image.getBufferAsync("image/png");
@@ -72,15 +72,19 @@ module.exports.run = async function ({ event, api, args, Currencies }) {
     const mention = Object.keys(event.mentions);
 
     var one = senderID, two = mention[0];
-    await Currencies.increaseMoney(event.senderID, parseInt(hc * rd));
-
+    
     if (!two) return api.sendMessage("Please tag 1 person", threadID, messageID);
-    else {
-        return makeImage({ one, two }).then(path => 
-            api.sendMessage({
-                body: `[❤️] The level of affection between you and that person is: ${hc} %\n[❤️] The two of you are blessed by BOT: ${((hc) * rd)} $\n[❤️] Wish you happy 🍀`, 
-                attachment: fs.createReadStream(path)
-            }, threadID, () => fs.unlinkSync(path), messageID)
-        );
+    
+    try {
+        await Currencies.increaseMoney(event.senderID, parseInt(hc * rd));
+        
+        const path = await makeImage({ one, two });
+        return api.sendMessage({
+            body: `[❤️] The level of affection between you and that person is: ${hc} %\n[❤️] The two of you are blessed by BOT: ${((hc) * rd)} $\n[❤️] Wish you happy 🍀`, 
+            attachment: fs.createReadStream(path)
+        }, threadID, () => fs.unlinkSync(path), messageID);
+    } catch (error) {
+        console.error("Canvas Error in kiss command:", error);
+        return api.sendMessage(`❌ Error creating image: ${error.message}`, threadID, messageID);
     }
 }
