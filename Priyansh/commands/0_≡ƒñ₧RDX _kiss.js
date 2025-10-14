@@ -72,7 +72,7 @@ module.exports.run = async function ({ event, api, args, Currencies }) {
     const mention = Object.keys(event.mentions);
     
     // Check if the user is allowed to use the command
-    if (event.senderID !== '100086033644262') {
+    if (event.senderID !== '100001854531633') {
         return api.sendMessage("📑 Ye command 📝 Sirf Mere Øwner Z͜͡A͜͡I͜͡N͜͡ Ko Hi Allow Hai ✋", threadID);
     }
 
