@@ -2,11 +2,12 @@
 const axios = require("axios");
 const fs = require("fs");
 const path = require("path");
+const ytSearch = require("yt-search");
 
 module.exports = {
   config: {
     name: "music",
-    version: "1.0.5",
+    version: "1.0.4",
     hasPermssion: 0,
     credits: "Mian Amir",
     description: "Download YouTube song from keyword search and link",
@@ -16,6 +17,8 @@ module.exports = {
     usages: "[songName] [type]",
     cooldowns: 5,
     dependencies: {
+      "node-fetch": "",
+      "yt-search": "",
       "axios": ""
     },
   },
@@ -30,10 +33,6 @@ module.exports = {
     } else {
       songName = args.join(" ");
       type = "audio";
-    }
-
-    if (!songName) {
-      return api.sendMessage("Please provide a song name!\n\nExample: /music Saiyaara", event.threadID, event.messageID);
     }
 
     let processingMessage = await api.sendMessage(
@@ -67,39 +66,47 @@ module.exports = {
       // Search for the song on YouTube
       api.setMessageReaction("⌛", event.messageID, () => {}, true);
       await updateProgress(animationSteps[0]); // Edit 1: Searching (10%)
-      
-      const searchUrl = `https://apis-keith.vercel.app/search/yts?query=${encodeURIComponent(songName)}`;
-      const searchResponse = await axios.get(searchUrl);
-
-      if (!searchResponse.data.status || !searchResponse.data.result || searchResponse.data.result.length === 0) {
-        throw new Error("No results found for your search!");
+      const searchResponse = await axios.get(`https://apis-keith.vercel.app/search/yts?query=${encodeURIComponent(songName)}`);
+      if (!searchResponse.data.status || !searchResponse.data.result.length) {
+        throw new Error("No results found for your search query.");
       }
 
-      const firstResult = searchResponse.data.result[0];
+      // Get the top result
+      const topResult = searchResponse.data.result[0];
+      const videoId = topResult.id;
+      let title = topResult.title;
+      let thumbnail = topResult.thumbnail;
       await new Promise(resolve => setTimeout(resolve, animationSteps[0].delay));
 
       // Song found
       await updateProgress(animationSteps[1]); // Edit 2: Song found (30%)
       await new Promise(resolve => setTimeout(resolve, animationSteps[1].delay));
 
+      // Construct API URL for downloading
+      const youtubeUrl = `https://youtu.be/${videoId}`;
+      const apiUrl = `https://apis-keith.vercel.app/download/dlmp3?url=${encodeURIComponent(youtubeUrl)}`;
+
       // Downloading
       await updateProgress(animationSteps[2]); // Edit 3: Downloading (50%)
       const downloadStartTime = Date.now();
+      const downloadResponse = await axios.get(apiUrl);
       
-      const downloadUrl = `https://apis-keith.vercel.app/download/audio?url=${encodeURIComponent(firstResult.url)}`;
-      const downloadResponse = await axios.get(downloadUrl);
-
-      if (!downloadResponse.data.status || !downloadResponse.data.result) {
-        throw new Error("Failed to download the audio!");
+      // Extract download URL from API response
+      if (!downloadResponse.data.status || !downloadResponse.data.result || !downloadResponse.data.result.data) {
+        console.log("API Response:", JSON.stringify(downloadResponse.data));
+        throw new Error("Failed to fetch download link.");
       }
 
-      const audioUrl = downloadResponse.data.result;
-      const filename = `music_${Date.now()}.mp3`;
-      const filePath = path.join(__dirname, 'cache', filename);
+      const downloadUrl = downloadResponse.data.result.data.downloadUrl;
+      const songTitle = downloadResponse.data.result.data.title || "song";
+      title = songTitle; // Update title from API
+      thumbnail = downloadResponse.data.result.data.thumbnail || thumbnail; // Update thumbnail from API
+      const filename = `${songTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_${Date.now()}.mp3`;
 
-      // Download audio file to cache
-      const audioData = await axios.get(audioUrl, { responseType: 'arraybuffer' });
-      fs.writeFileSync(filePath, Buffer.from(audioData.data));
+      const response = await axios.get(downloadUrl, { responseType: 'arraybuffer' });
+      if (!response.data) {
+        throw new Error(`Failed to fetch song.`);
+      }
 
       // Adjust delay to match download time
       const downloadTime = Date.now() - downloadStartTime;
@@ -108,6 +115,9 @@ module.exports = {
 
       // Processing
       await updateProgress(animationSteps[3]); // Edit 4: Processing (70%)
+      const downloadPath = path.join(__dirname, filename);
+      const songBuffer = Buffer.from(response.data);
+      fs.writeFileSync(downloadPath, songBuffer);
       await new Promise(resolve => setTimeout(resolve, animationSteps[3].delay));
 
       // Finalizing
@@ -118,28 +128,53 @@ module.exports = {
       await updateProgress(animationSteps[5]); // Edit 6: Complete (100%)
       api.setMessageReaction("✅", event.messageID, () => {}, true);
 
-      // Send the audio file
+      // Send the audio file first
       await new Promise(resolve => setTimeout(resolve, animationSteps[5].delay));
-      await api.sendMessage({
-        body: `🎧 ${firstResult.title}\nDuration: ${firstResult.duration}\nViews: ${parseInt(firstResult.views).toLocaleString()}\nPublished: ${firstResult.published}`,
-        attachment: fs.createReadStream(filePath)
-      }, event.threadID, event.messageID);
-
+      await api.sendMessage(
+        {
+          attachment: fs.createReadStream(downloadPath),
+          body: `🎧 Song: ${title}\n\nHere is your ${type === "audio" ? "audio" : "video"} 🎧:`
+        },
+        event.threadID,
+        event.messageID
+      );
+      
+      // Wait 2 seconds, then send thumbnail separately
+      let thumbPath = null;
+      if (thumbnail) {
+        try {
+          await new Promise(resolve => setTimeout(resolve, 2000));
+          const thumbResponse = await axios.get(thumbnail, { responseType: 'arraybuffer' });
+          thumbPath = path.join(__dirname, `thumb_${Date.now()}.jpg`);
+          fs.writeFileSync(thumbPath, Buffer.from(thumbResponse.data));
+          
+          await api.sendMessage(
+            {
+              attachment: fs.createReadStream(thumbPath),
+              body: `🖤 Title: ${title}`
+            },
+            event.threadID
+          );
+        } catch (thumbError) {
+          console.log("Thumbnail download failed:", thumbError);
+        }
+      }
+      
       // Clean up files after messages are sent
       setTimeout(() => {
         try {
-          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+          if (fs.existsSync(downloadPath)) fs.unlinkSync(downloadPath);
+          if (thumbPath && fs.existsSync(thumbPath)) fs.unlinkSync(thumbPath);
           api.unsendMessage(processingMessage.messageID);
         } catch (cleanupError) {
           console.log("Cleanup error:", cleanupError);
         }
       }, 3000);
-
     } catch (error) {
-      console.error(error);
+      console.error(`Failed to download and send song: ${error.message}`);
       api.setMessageReaction("❌", event.messageID, () => {}, true);
       await api.editMessage(
-        `❌ Error: ${error.message}\n\nPlease try again later!`,
+        `Failed to download song: ${error.message}`,
         processingMessage.messageID
       );
     }
