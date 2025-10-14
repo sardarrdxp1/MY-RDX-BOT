@@ -43,18 +43,31 @@ module.exports.run = async ({ api, event, args }) => {
         const downloadUrl = `https://apis-keith.vercel.app/download/mp4?url=${encodeURIComponent(videoUrl)}`;
         const downloadResponse = await axios.get(downloadUrl);
 
-        if (!downloadResponse.data.status || !downloadResponse.data.result || !downloadResponse.data.result.url) {
+        console.log("Download API Response:", JSON.stringify(downloadResponse.data, null, 2));
+
+        if (!downloadResponse.data.status || !downloadResponse.data.result) {
             api.unsendMessage(searchMsg.messageID);
-            return api.sendMessage("❌ Failed to get download link from API!", threadID, messageID);
+            return api.sendMessage("❌ Failed to get download response from API!", threadID, messageID);
         }
 
+        // The download URL is directly in result.url
         const finalVideoUrl = downloadResponse.data.result.url;
+        
+        if (!finalVideoUrl) {
+            api.unsendMessage(searchMsg.messageID);
+            return api.sendMessage("❌ No download URL in API response!", threadID, messageID);
+        }
+
+        console.log("Final Video URL:", finalVideoUrl);
+
         const filePath = __dirname + `/cache/video_${Date.now()}.mp4`;
 
         // Download video file to cache
+        api.editMessage("⬇️ Downloading video file...", searchMsg.messageID);
+        
         const videoData = await axios.get(finalVideoUrl, {
             responseType: 'arraybuffer',
-            timeout: 60000,
+            timeout: 120000,
             maxContentLength: Infinity,
             maxBodyLength: Infinity
         });
