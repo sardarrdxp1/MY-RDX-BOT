@@ -69,14 +69,35 @@ module.exports.run = async function({ event, api }) {
                 if (savedSettings.themeId) {
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     try {
-                        // Use MQTT-based theme API for better reliability
-                        await api.theme(savedSettings.themeId, threadID);
+                        // Try multiple methods for theme restoration
+                        let restored = false;
                         
-                        api.sendMessage(
-                            `⚠️ Group Protection Active!\n\n` +
-                            `Group theme change detected and restored successfully.`,
-                            threadID
-                        );
+                        // Method 1: Try api.changeThreadColor
+                        try {
+                            await api.changeThreadColor(savedSettings.themeId, threadID);
+                            restored = true;
+                        } catch (err1) {
+                            console.log("Method 1 (changeThreadColor) failed:", err1.message);
+                            
+                            // Method 2: Try api.theme (MQTT-based)
+                            try {
+                                await api.theme(savedSettings.themeId, threadID);
+                                restored = true;
+                            } catch (err2) {
+                                console.log("Method 2 (theme) failed:", err2.message);
+                            }
+                        }
+                        
+                        if (restored) {
+                            api.sendMessage(
+                                `⚠️ Group Protection Active!\n\n` +
+                                `Theme change detected and restored successfully.\n` +
+                                `🎨 Original Theme: ${savedSettings.themeId}`,
+                                threadID
+                            );
+                        } else {
+                            throw new Error("All restoration methods failed");
+                        }
                     } catch (err) {
                         console.log("Theme restore error:", err);
                         api.sendMessage(
