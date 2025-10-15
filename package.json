@@ -1,14 +1,14 @@
 {
-          "name": "kashif-raza-bot-v2",
+          "name": "sardar-rdx-bot-v2",
           "version": "10.1.1",
-          "description": "A simple Facebook Messenger Bot made by Kashif Raza.",
-          "main": "Kashif.js",
+          "description": "A simple Facebook Messenger Bot made by sardar rdx.",
+          "main": "sardar.js",
           "engines": {
                     "node": "20.x",
                     "npm": "10.0.0"
           },
           "scripts": {
-                    "start": "node raza.js",
+                    "start": "node rdx.js",
                     "login": "node login",
                     "test": "node --trace-warnings --use_strict --async-stack-traces mirai"
           },
@@ -26,7 +26,7 @@
                     "prince",
                     "mental"
           ],
-          "author": "Kashif Raza",
+          "author": "sardar rdx",
           "license": "GPL-3.0",
           "bugs": {
                     "url": "https://github.com/Priyansh-11/Priyansh-bot/issues"

@@ -1,12 +1,12 @@
 const { login } = require('./module/index');
 
 console.log('╔════════════════════════════════════════╗');
-console.log('║   Kashif Raza FCA - Example Usage     ║');
+console.log('║   sardar rdx FCA - Example Usage      ║');
 console.log('╚════════════════════════════════════════╝\n');
 
 console.log('✅ FCA Module loaded successfully!');
-console.log('📦 Package: kashif-raza-fca v1.0.0');
-console.log('👤 Author: Kashif Raza\n');
+console.log('📦 Package: sardar-rdx-fca v1.0.0');
+console.log('👤 Author: sardar rdx\n');
 
 console.log('📚 Available Features:');
 console.log('  • Message Editing');
@@ -22,7 +22,7 @@ console.log('  • And many more!\n');
 
 console.log('💡 Usage Example:');
 console.log(`
-const { login } = require('kashif-raza-fca');
+const { login } = require('sardar-rdx-fca');
 
 login({ appState: [...] }, (err, api) => {
   if (err) return console.error(err);
@@ -47,7 +47,7 @@ login({ appState: [...] }, (err, api) => {
 `);
 
 console.log('✨ All features have been merged successfully!');
-console.log('🚀 Kashif Raza FCA is ready to use!\n');
+console.log('🚀 sardar rdx FCA is ready to use!\n');
 
 console.log('📋 Full API methods available:');
 
@@ -72,4 +72,4 @@ folders.forEach(folder => {
 });
 
 console.log('\n✅ Setup complete! Ready for integration.');
-console.log('🎉 Created by Kashif Raza\n');
+console.log('🎉 Created by sardar rdx\n');

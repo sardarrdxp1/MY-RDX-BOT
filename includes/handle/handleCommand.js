@@ -37,7 +37,7 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
     if (!NDH.includes(senderID) && !ADMINBOT.includes(senderID) && adminbot.ndhOnly == true) {
       if (!NDH.includes(senderID) && !ADMINBOT.includes(senderID) && adminbot.ndhOnly == true) return api.sendMessage('MODE » Only bot support can use bots', threadID, messageID)
     }
-    const dataAdbox = require('../../RAZA/commands/cache/data.json');
+    const dataAdbox = require('../../RDX/commands/cache/data.json');
     var threadInf = (threadInfo.get(threadID) || await Threads.getInfo(threadID));
     const findd = threadInf.adminIDs.find(el => el.id == senderID);
     if (dataAdbox.adminbox.hasOwnProperty(threadID) && dataAdbox.adminbox[threadID] == true && !ADMINBOT.includes(senderID) && !findd && event.isGroup == true) return api.sendMessage('MODE » Only admins can use bots', event.threadID, event.messageID)

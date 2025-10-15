@@ -1,20 +1,20 @@
 {
-  "name": "kashif-raza-fca",
+  "name": "sardar-rdx-fca",
   "version": "1.0.0",
   "module": "commonjs",
   "types": "src/types/index.d.ts",
-  "description": "Advanced Facebook Chat API (FCA) by Kashif Raza - A powerful node.js package for automating Facebook Messenger bots with extensive features",
+  "description": "Advanced Facebook Chat API (FCA) by sardar rdx - A powerful node.js package for automating Facebook Messenger bots with extensive features",
   "main": "module/index",
   "scripts": {
-    "test": "echo kashif-raza-fca!"
+    "test": "echo sardar-rdx-fca!"
   },
   "repository": {
     "type": "git",
     "url": ""
   },
-  "author": "Kashif Raza",
+  "author": "sardar rdx",
   "contributors": [
-    "Kashif Raza"
+    "sardar rdx"
   ],
   "license": "MIT",
   "bugs": {
@@ -26,8 +26,8 @@
     "chat",
     "api",
     "fca",
-    "kashif-raza",
-    "kashif-raza-fca",
+    "sardar-rdx",
+    "sardar-rdx-fca",
     "messenger",
     "bot",
     "automation"

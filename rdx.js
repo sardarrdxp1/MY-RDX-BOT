@@ -140,7 +140,7 @@ function restartBot() {
 function startBot(message) {
     if (message) logger(message, "[ Starting ]");
 
-    botProcess = spawn("node", ["--trace-warnings", "--async-stack-traces", "Kashif.js"], {
+    botProcess = spawn("node", ["--trace-warnings", "--async-stack-traces", "sardar.js"], {
         cwd: __dirname,
         stdio: "inherit",
         shell: true
@@ -179,7 +179,7 @@ function startBot(message) {
                 startBot();
             } else {
                 logger(`Bot stopped after ${global.countRestart} restarts.`, "[ Stopped ]");
-                logger("To see detailed errors, check the logs above or run the bot with 'node Kashif.js' directly", "[ Debug ]");
+                logger("To see detailed errors, check the logs above or run the bot with 'node sardar.js' directly", "[ Debug ]");
             }
         } else {
             logger("Bot process exited with code 0 (normal exit)", "[ Exit ]");

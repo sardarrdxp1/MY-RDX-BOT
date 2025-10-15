@@ -3,35 +3,35 @@
 # Put the # character at the beginning of each sentence if you don't want the code to run those lines. 
 # Thanks to https://www.facebook.com/duong.than.net for translate to English!
 
-# Priyansh.js 
+# sardar.js 
 
-kashif.newVersionDetected=𝐘𝐨𝐮 𝐚𝐫𝐞 𝐮𝐬𝐢𝐧𝐠 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 %1, 𝐭𝐡𝐞 𝐥𝐚𝐭𝐞𝐬𝐭 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 𝐢𝐬 %2. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐝𝐚𝐭𝐞 𝐭𝐨 𝐭𝐡𝐞 𝐥𝐚𝐭𝐞𝐬𝐭 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 𝐨𝐟 𝐟𝐨𝐫 𝐛𝐞𝐭𝐭𝐞𝐫 𝐛𝐨𝐭 𝐩𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞. 𝐅𝐨𝐫 𝐮𝐩𝐝𝐚𝐭𝐞 𝐭𝐲𝐩𝐞 𝐢𝐧 𝐜𝐨𝐧𝐬𝐨𝐥𝐞/𝐜𝐦𝐝: 𝐧𝐨𝐝𝐞 𝐮𝐩𝐝𝐚𝐭𝐞
-kashif.errorFormat=Malformed module!
-kashif.nameExist=Module's name is similar to another module!
-kashif.notFoundLanguage=Module %1 don't support your language
-kashif.notFoundPackage=Can't find package %1 support for module %2, installing...
-kashif.cantInstallPackage=Can't install package %1 for module %2, error: %3
-kashif.loadedPackage=Installed whole package successfully for module %1
-kashif.loadedConfig=Installed config successfully for module %1
-kashif.cantLoadConfig=Can't install config of module %1, error: %2
-kashif.cantOnload=Can't launch setup of module %1, error: %1
-kashif.successLoadModule=Successfully installed module %1
-kashif.failLoadModule=Can't install module %1, error: %2
-kashif.finishLoadModule=Installed %1 module commands and %2 module events successfully 
-kashif.foundPathAppstate=Found appstate file now logging in...
-kashif.notFoundPathAppstate=Error can't find appstate file maybe file is malformed!
-kashif.checkListGban=Checking global ban list...
-kashif.banDevice=Your device have been banned from Priyanshproject, please contact to facebook https://fb.me/Priyanshu.Rajput.official to know more information or asking for unban key, if you already have unban key, please fill it below.
-kashif.keyNotSameFormat=Wrong format, code must contain 6 number.
-kashif.codeInputExpired=Your code is wrong or out of date.
-kashif.unbanDeviceSuccess=Your device are unban now, please restart to use.
-kashif.userBanned=You had been banned from Priyanshproject when %1 with reason: %2. Please contact to facebook https://fb.me/Priyanshu.Rajput.official to have more information!
-kashif.finishCheckListGban=Checked global ban list
-kashif.handleListenError=handleListene has occurred some unexpected errorr, error : %1
-kashif.warningSourceCode=DETECTED THAT SOURCE CODE'S STRUCTURE HAD BEEN CHANGED , STOP NOW!
-kashif.refreshListen=Refreshed handleListener...
-kashif.successConnectDatabase=Connected to database successfully!
-kashif.failConnectDatabase=Failed to connect to database, error: %1
+sardar.newVersionDetected=𝐘𝐨𝐮 𝐚𝐫𝐞 𝐮𝐬𝐢𝐧𝐠 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 %1, 𝐭𝐡𝐞 𝐥𝐚𝐭𝐞𝐬𝐭 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 𝐢𝐬 %2. 𝐏𝐥𝐞𝐚𝐬𝐞 𝐮𝐩𝐝𝐚𝐭𝐞 𝐭𝐨 𝐭𝐡𝐞 𝐥𝐚𝐭𝐞𝐬𝐭 𝐯𝐞𝐫𝐬𝐢𝐨𝐧 𝐨𝐟 𝐟𝐨𝐫 𝐛𝐞𝐭𝐭𝐞𝐫 𝐛𝐨𝐭 𝐩𝐞𝐫𝐟𝐨𝐫𝐦𝐚𝐧𝐜𝐞. 𝐅𝐨𝐫 𝐮𝐩𝐝𝐚𝐭𝐞 𝐭𝐲𝐩𝐞 𝐢𝐧 𝐜𝐨𝐧𝐬𝐨𝐥𝐞/𝐜𝐦𝐝: 𝐧𝐨𝐝𝐞 𝐮𝐩𝐝𝐚𝐭𝐞
+sardar.errorFormat=Malformed module!
+sardar.nameExist=Module's name is similar to another module!
+sardar.notFoundLanguage=Module %1 don't support your language
+sardar.notFoundPackage=Can't find package %1 support for module %2, installing...
+sardar.cantInstallPackage=Can't install package %1 for module %2, error: %3
+sardar.loadedPackage=Installed whole package successfully for module %1
+sardar.loadedConfig=Installed config successfully for module %1
+sardar.cantLoadConfig=Can't install config of module %1, error: %2
+sardar.cantOnload=Can't launch setup of module %1, error: %1
+sardar.successLoadModule=Successfully installed module %1
+sardar.failLoadModule=Can't install module %1, error: %2
+sardar.finishLoadModule=Installed %1 module commands and %2 module events successfully 
+sardar.foundPathAppstate=Found appstate file now logging in...
+sardar.notFoundPathAppstate=Error can't find appstate file maybe file is malformed!
+sardar.checkListGban=Checking global ban list...
+sardar.banDevice=Your device have been banned from Priyanshproject, please contact to facebook https://fb.me/Priyanshu.Rajput.official to know more information or asking for unban key, if you already have unban key, please fill it below.
+sardar.keyNotSameFormat=Wrong format, code must contain 6 number.
+sardar.codeInputExpired=Your code is wrong or out of date.
+sardar.unbanDeviceSuccess=Your device are unban now, please restart to use.
+sardar.userBanned=You had been banned from Priyanshproject when %1 with reason: %2. Please contact to facebook https://fb.me/Priyanshu.Rajput.official to have more information!
+sardar.finishCheckListGban=Checked global ban list
+sardar.handleListenError=handleListene has occurred some unexpected errorr, error : %1
+sardar.warningSourceCode=DETECTED THAT SOURCE CODE'S STRUCTURE HAD BEEN CHANGED , STOP NOW!
+sardar.refreshListen=Refreshed handleListener...
+sardar.successConnectDatabase=Connected to database successfully!
+sardar.failConnectDatabase=Failed to connect to database, error: %1
 
 # includes/listen.js
 
@@ -59,7 +59,7 @@ users.needObject=Have to be an Object
 
 # includes/handle/handleCommand.js
 
-handleCommand.userBanned=⛔️~Tu Banned Hai Re 🤭!~🚫\n%1\n%2\nContact B0T Owner Kashif Raza  🖤 For Unban ⚠️
+handleCommand.userBanned=⛔️~Tu Banned Hai Re 🤭!~🚫\n%1\n%2\nContact B0T Owner sardar rdx  🖤 For Unban ⚠️
 handleCommand.threadBanned=⛔️Your Thread/Box/Group Has Been Banned!⛔️\n%1\n%2 Please Contact Owner Priyansh For Unban ⚠️
 handleCommand.commandNotExist=the command you used doesn't exist in our system, try %
 handleCommand.commandThreadBanned=Your thread is unable to use command "%1"
