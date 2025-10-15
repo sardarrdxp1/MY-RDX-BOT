@@ -6,7 +6,7 @@ const axios = require("axios");
 module.exports.config = {
     name: "protectgroup",
     eventType: ["log:thread-name", "log:thread-icon", "log:thread-color", "log:thread-image"],
-    version: "3.0.0",
+    version: "4.0.0",
     credits: "Kashif Raza",
     description: "Automatically restore group settings if someone changes them"
 };
@@ -38,7 +38,7 @@ module.exports.run = async function({ event, api }) {
             case "log:thread-name": {
                 const newName = logMessageData.name;
                 if (newName !== savedSettings.name) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     await api.setTitle(savedSettings.name, threadID);
                     api.sendMessage(
                         `⚠️ Group Protection Active!\n\n` +
@@ -53,7 +53,7 @@ module.exports.run = async function({ event, api }) {
             case "log:thread-icon": {
                 const newEmoji = logMessageData.thread_icon;
                 if (newEmoji !== savedSettings.emoji) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    await new Promise(resolve => setTimeout(resolve, 1500));
                     await api.changeThreadEmoji(savedSettings.emoji, threadID);
                     api.sendMessage(
                         `⚠️ Group Protection Active!\n\n` +
@@ -66,31 +66,45 @@ module.exports.run = async function({ event, api }) {
             }
             
             case "log:thread-color": {
-                const newTheme = logMessageData.theme_color || logMessageData.thread_color;
-                if (newTheme && savedSettings.themeId) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
+                if (savedSettings.themeId) {
+                    await new Promise(resolve => setTimeout(resolve, 3000));
                     try {
-                        // Try to restore theme
+                        // Use alternative method with proper formatting
+                        const form = {
+                            source: "SETTINGS",
+                            theme_id: savedSettings.themeId,
+                            thread_id: threadID
+                        };
+                        
                         await api.changeThreadColor(savedSettings.themeId, threadID);
+                        
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
                             `Group theme change detected and restored.`,
                             threadID
                         );
                     } catch (err) {
-                        console.log("Error restoring theme:", err);
-                        api.sendMessage(
-                            `⚠️ Group Protection Active!\n\n` +
-                            `Theme change detected but could not be restored due to Facebook limitations.`,
-                            threadID
-                        );
+                        console.log("Theme restore error:", err);
+                        // Try alternative restore method
+                        try {
+                            await new Promise(resolve => setTimeout(resolve, 2000));
+                            await api.changeThreadColor(savedSettings.themeId, threadID);
+                        } catch (e) {
+                            api.sendMessage(
+                                `⚠️ Group Protection Active!\n\n` +
+                                `Theme change detected. Auto-restore failed.\n` +
+                                `Please manually set theme to: ${savedSettings.themeId}`,
+                                threadID
+                            );
+                        }
                     }
                 }
                 break;
             }
             
             case "log:thread-image": {
-                await new Promise(resolve => setTimeout(resolve, 2000));
+                console.log("Picture change detected for thread:", threadID);
+                await new Promise(resolve => setTimeout(resolve, 2500));
                 
                 if (savedSettings.hasImage && savedSettings.image) {
                     const imagePath = path.join(__dirname, "cache", `protect_${threadID}.jpg`);
@@ -113,23 +127,26 @@ module.exports.run = async function({ event, api }) {
                             threadID
                         );
                         
-                        if (fs.existsSync(imagePath)) {
-                            fs.unlinkSync(imagePath);
-                        }
+                        setTimeout(() => {
+                            if (fs.existsSync(imagePath)) {
+                                fs.unlinkSync(imagePath);
+                            }
+                        }, 5000);
+                        
                     } catch (err) {
                         console.log("Error restoring image:", err);
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
-                            `Picture change detected but could not be restored.`,
+                            `Picture change detected but restoration failed.\n` +
+                            `Error: ${err.message || 'Unknown error'}`,
                             threadID
                         );
                     }
                 } else if (!savedSettings.hasImage) {
-                    // Original group had no picture
                     api.sendMessage(
                         `⚠️ Group Protection Active!\n\n` +
                         `Group picture was added, but original group had no picture.\n` +
-                        `Note: Due to platform limitations, picture cannot be removed automatically.`,
+                        `Note: Picture cannot be removed automatically.`,
                         threadID
                     );
                 }
@@ -138,6 +155,10 @@ module.exports.run = async function({ event, api }) {
         }
         
     } catch (error) {
-        console.log("Error restoring group settings:", error);
+        console.log("Error in protectgroup event:", error);
+        api.sendMessage(
+            `❌ Protection Error: ${error.message || 'Unknown error'}`,
+            threadID
+        );
     }
 };
