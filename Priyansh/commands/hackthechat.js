@@ -13,31 +13,38 @@ module.exports.config = {
 };
 
 module.exports.handleEvent = async function({ api, event }) {
-    const { threadID, senderID, messageID } = event;
+    const { threadID, senderID, messageID, body } = event;
+    
+    console.log(`[HACK DEBUG] Event triggered - Thread: ${threadID}, Sender: ${senderID}, Message: ${body || 'no body'}`);
     
     const cachePath = path.join(__dirname, "cache", "hackthechat.json");
     
     if (!fs.existsSync(cachePath)) {
+        console.log("[HACK DEBUG] Cache file not found");
         return;
     }
     
     let hackData = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
+    console.log(`[HACK DEBUG] Cache data:`, hackData);
     
     if (!hackData[threadID] || !hackData[threadID].enabled) {
+        console.log(`[HACK DEBUG] Chat not locked for thread ${threadID}`);
         return;
     }
     
     // Don't block bot's own messages
     if (senderID == api.getCurrentUserID()) {
+        console.log("[HACK DEBUG] Bot's own message, skipping");
         return;
     }
     
     // Block ALL messages - group is completely dead
+    console.log(`[HACK THE CHAT] Attempting to block message ${messageID} from user ${senderID}`);
     try {
         await api.unsendMessage(messageID);
-        console.log(`[HACK THE CHAT] Blocked message from user ${senderID} in thread ${threadID}`);
+        console.log(`[HACK THE CHAT] Successfully blocked message from user ${senderID} in thread ${threadID}`);
     } catch (err) {
-        console.log("Error blocking message:", err);
+        console.log("[HACK THE CHAT] Error blocking message:", err);
     }
 };
 
