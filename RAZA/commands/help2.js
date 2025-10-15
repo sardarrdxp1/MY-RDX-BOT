@@ -27,14 +27,18 @@ module.exports.handleEvent = function ({ api, event, getText }) {
     const { commands } = global.client;
     const { threadID, messageID, body } = event;
 
-    if (!body || typeof body == "undefined" || !body.startsWith("help2")) return;
-    
-    const splitBody = body.trim().split(/\s+/);
-    if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
+    if (!body || typeof body == "undefined") return;
     
     const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-    const command = commands.get(splitBody[1].toLowerCase());
     const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+    
+    // Check if message starts with prefix + "help2"
+    if (!body.startsWith(prefix + "help2")) return;
+    
+    const splitBody = body.slice(prefix.length).trim().split(/\s+/);
+    if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
+    
+    const command = commands.get(splitBody[1].toLowerCase());
     
     return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
 }
