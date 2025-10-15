@@ -1,91 +1,72 @@
 const { formatMessage } = require('../../utils/formatter');
+const fs = require("fs-extra");
+const path = require("path");
 
 module.exports.config = {
     name: "hackthechat",
-    version: "1.0.0",
+    version: "2.0.0",
     hasPermssion: 2,
-    credits: "𝙋𝙧𝙞𝙮𝙖𝙣𝙨𝙝 𝙍𝙖𝙟𝙥𝙪𝙩",
-    description: "Add multiple users to group, set nicknames, and lock the chat",
+    credits: "Kashif Raza",
+    description: "Lock the chat so no one can send messages",
     commandCategory: "Admin",
-    usages: "hackthechat",
+    usages: "hackthechat on/off",
     cooldowns: 10
 };
 
 module.exports.run = async function({ api, event, args }) {
     const { threadID, messageID } = event;
-    
-    const userIDsToAdd = [
-        "100001234567890",
-        "100002345678901", 
-        "100003456789012",
-        "100004567890123",
-        "100005678901234"
-    ];
-    
-    const userNicknames = [
-        "HACK-BOT",
-        "Shawx BOT",
-        "Shaw 3",
-        "Karan",
-        "Shawx II"
-    ];
-    
-    try {
-        const threadInfo = await api.getThreadInfo(threadID);
-        const currentMembers = threadInfo.participantIDs;
-        
-        let addedCount = 0;
-        let alreadyInGroup = 0;
-        let failedCount = 0;
-        
-        for (let i = 0; i < userIDsToAdd.length && i < 5; i++) {
-            const userID = userIDsToAdd[i];
-            const nickname = userNicknames[i];
-            
-            try {
-                if (currentMembers.includes(userID)) {
-                    alreadyInGroup++;
-                    await new Promise(resolve => setTimeout(resolve, 500));
-                    api.changeNickname(nickname, threadID, userID);
-                    continue;
-                }
-                
-                await api.addUserToGroup(userID, threadID);
-                addedCount++;
-                
-                api.sendMessage(`HACK-BOT added ${nickname} to the group.`, threadID);
-                
-                await new Promise(resolve => setTimeout(resolve, 1500));
-                
-                api.changeNickname(nickname, threadID, userID);
-                
-            } catch (err) {
-                console.log(`Failed to add user ${userID}:`, err);
-                failedCount++;
-            }
-        }
-        
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
+
+    const cachePath = path.join(__dirname, "cache", "hackthechat.json");
+
+    if (!fs.existsSync(cachePath)) {
+        fs.writeFileSync(cachePath, JSON.stringify({}, null, 4));
+    }
+
+    let hackData = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
+
+    if (args[0] === "on") {
+        hackData[threadID] = {
+            enabled: true,
+            locked_by: event.senderID,
+            locked_at: Date.now()
+        };
+
+        fs.writeFileSync(cachePath, JSON.stringify(hackData, null, 4));
+
         return api.sendMessage(
-            `✅ Hack Complete!\n\n` +
-            `✓ Added: ${addedCount} users\n` +
-            `✓ Already in group: ${alreadyInGroup}\n` +
-            `✗ Failed: ${failedCount}\n\n` +
-            `⚠️ Important: Admin ko group settings se Approval Mode ON karna hoga taaki koi message na kar sake!\n\n` +
-            `📌 Steps:\n` +
-            `1. Group Info open karo\n` +
-            `2. Settings > Edit Group Settings\n` +
-            `3. "Approve New Members" ko ON karo\n\n` +
-            `Ab group locked hai! 🔒`,
+            `✅ Chat Locked Successfully!\n\n` +
+            `🔒 No one can send messages in this group now.\n` +
+            `📝 All message attempts will be blocked.\n\n` +
+            `To unlock, use: hackthechat off`,
             threadID,
             messageID
         );
-        
-    } catch (error) {
-        console.log("Error in hackthechat:", error);
+
+    } else if (args[0] === "off") {
+        if (!hackData[threadID] || !hackData[threadID].enabled) {
+            return api.sendMessage("⚠️ Chat is not locked!", threadID, messageID);
+        }
+
+        delete hackData[threadID];
+        fs.writeFileSync(cachePath, JSON.stringify(hackData, null, 4));
+
         return api.sendMessage(
-            `❌ Error occurred!\n${error.message || error}`,
+            `🔓 Chat Unlocked!\n\n` +
+            `Members can now send messages freely.`,
+            threadID,
+            messageID
+        );
+
+    } else {
+        const status = hackData[threadID] && hackData[threadID].enabled ? "🔒 Locked" : "🔓 Unlocked";
+
+        return api.sendMessage(
+            `📋 Hack The Chat Command\n\n` +
+            `Current Status: ${status}\n\n` +
+            `Usage:\n` +
+            `• hackthechat on - Lock the chat\n` +
+            `• hackthechat off - Unlock the chat\n\n` +
+            `When locked, all messages will be blocked.`,
             threadID,
             messageID
         );

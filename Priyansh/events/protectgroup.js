@@ -1,16 +1,18 @@
+
+const fs = require("fs-extra");
+const path = require("path");
+const axios = require("axios");
+
 module.exports.config = {
     name: "protectgroup",
     eventType: ["log:thread-name", "log:thread-icon", "log:thread-color", "log:thread-image"],
-    version: "1.0.0",
-    credits: "𝙋𝙧𝙞𝙮𝙖𝙣𝙨𝙝 𝙍𝙖𝙟𝙥𝙪𝙩",
-    description: "Group settings ko automatically restore karo agar koi change kare"
+    version: "2.0.0",
+    credits: "Kashif Raza",
+    description: "Automatically restore group settings if someone changes them"
 };
 
 module.exports.run = async function({ event, api }) {
     const { threadID, logMessageType, logMessageData, author } = event;
-    const fs = require("fs-extra");
-    const path = require("path");
-    const axios = require("axios");
     
     const cachePath = path.join(__dirname, "../commands/cache", "protectgroup.json");
     
@@ -24,6 +26,7 @@ module.exports.run = async function({ event, api }) {
         return;
     }
     
+    // Don't restore if bot made the change
     if (author == api.getCurrentUserID()) {
         return;
     }
@@ -39,7 +42,7 @@ module.exports.run = async function({ event, api }) {
                     await api.setTitle(savedSettings.name, threadID);
                     api.sendMessage(
                         `⚠️ Group Protection Active!\n\n` +
-                        `Group name change detect hua aur restore kar diya gaya.\n` +
+                        `Group name change detected and restored.\n` +
                         `🔒 Original Name: ${savedSettings.name}`,
                         threadID
                     );
@@ -54,7 +57,7 @@ module.exports.run = async function({ event, api }) {
                     await api.changeThreadEmoji(savedSettings.emoji, threadID);
                     api.sendMessage(
                         `⚠️ Group Protection Active!\n\n` +
-                        `Group emoji change detect hua aur restore kar diya gaya.\n` +
+                        `Group emoji change detected and restored.\n` +
                         `🔒 Original Emoji: ${savedSettings.emoji}`,
                         threadID
                     );
@@ -63,15 +66,19 @@ module.exports.run = async function({ event, api }) {
             }
             
             case "log:thread-color": {
-                const newTheme = logMessageData.thread_color;
-                if (newTheme !== savedSettings.themeId) {
-                    await new Promise(resolve => setTimeout(resolve, 1000));
-                    await api.changeThreadColor(savedSettings.themeId, threadID);
-                    api.sendMessage(
-                        `⚠️ Group Protection Active!\n\n` +
-                        `Group theme change detect hua aur restore kar diya gaya.`,
-                        threadID
-                    );
+                const newTheme = logMessageData.theme_color || logMessageData.thread_color;
+                if (newTheme && newTheme !== savedSettings.themeId) {
+                    await new Promise(resolve => setTimeout(resolve, 1500));
+                    try {
+                        await api.changeThreadColor(savedSettings.themeId, threadID);
+                        api.sendMessage(
+                            `⚠️ Group Protection Active!\n\n` +
+                            `Group theme change detected and restored.`,
+                            threadID
+                        );
+                    } catch (err) {
+                        console.log("Error restoring theme:", err);
+                    }
                 }
                 break;
             }
@@ -90,33 +97,43 @@ module.exports.run = async function({ event, api }) {
                     
                     fs.writeFileSync(imagePath, imageBuffer);
                     
-                    await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
+                    try {
+                        await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
+                        api.sendMessage(
+                            `⚠️ Group Protection Active!\n\n` +
+                            `Group picture change detected and restored.`,
+                            threadID
+                        );
+                    } catch (err) {
+                        console.log("Error restoring image:", err);
+                    }
                     
-                    fs.unlinkSync(imagePath);
-                    
-                    api.sendMessage(
-                        `⚠️ Group Protection Active!\n\n` +
-                        `Group picture change detect hua aur restore kar diya gaya.`,
-                        threadID
-                    );
+                    if (fs.existsSync(imagePath)) {
+                        fs.unlinkSync(imagePath);
+                    }
                 } else if (!savedSettings.hasImage) {
                     await new Promise(resolve => setTimeout(resolve, 2000));
                     
                     const transparentPath = path.join(__dirname, "cache", "transparent.png");
                     
-                    await api.changeGroupImage(fs.createReadStream(transparentPath), threadID);
-                    
-                    api.sendMessage(
-                        `⚠️ Group Protection Active!\n\n` +
-                        `Group picture add kiya gaya tha, lekin original group me koi picture nahi thi.\n` +
-                        `Picture ko restore kar diya gaya (blank image).`,
-                        threadID
-                    );
+                    if (fs.existsSync(transparentPath)) {
+                        try {
+                            await api.changeGroupImage(fs.createReadStream(transparentPath), threadID);
+                            api.sendMessage(
+                                `⚠️ Group Protection Active!\n\n` +
+                                `Group picture was added, but original group had no picture.\n` +
+                                `Restored to transparent placeholder.`,
+                                threadID
+                            );
+                        } catch (err) {
+                            console.log("Error restoring to transparent:", err);
+                        }
+                    }
                 }
-                
                 break;
             }
         }
+        
     } catch (error) {
         console.log("Error restoring group settings:", error);
     }
