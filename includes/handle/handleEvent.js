@@ -1,6 +1,6 @@
 module.exports = function ({api ,models, Users, Threads, Currencies }) {
     const logger = require("../../utils/log.js");
-   	const moment = require("moment");
+        const moment = require("moment");
 
     return function ({ event }) {
         const timeStart = Date.now()
@@ -13,6 +13,12 @@ module.exports = function ({api ,models, Users, Threads, Currencies }) {
         threadID = String(threadID);
         if (userBanned.has(senderID)|| threadBanned.has(threadID) || allowInbox == ![] && senderID == threadID) return;
         if (event.type == "change_thread_image") event.logMessageType = "change_thread_image";
+        
+        // Debug logging for event types
+        if (event.logMessageType) {
+            console.log(`[EVENT DEBUG] Type: ${event.logMessageType}, Thread: ${threadID}`);
+        }
+        
         for (const [key, value] of events.entries()) {
             if (value.config.eventType.indexOf(event.logMessageType) !== -1) {
                 const eventRun = events.get(key);
@@ -26,7 +32,7 @@ module.exports = function ({api ,models, Users, Threads, Currencies }) {
                     Obj.Currencies = Currencies 
                     eventRun.run(Obj);
                     if (DeveloperMode == !![]) 
-                    	logger(global.getText('handleEvent', 'executeEvent', time, eventRun.config.name, threadID, Date.now() - timeStart), '[ Event ]');
+                        logger(global.getText('handleEvent', 'executeEvent', time, eventRun.config.name, threadID, Date.now() - timeStart), '[ Event ]');
                 } catch (error) {
                     logger(global.getText('handleEvent', 'eventError', eventRun.config.name, JSON.stringify(error)), "error");
                 }
