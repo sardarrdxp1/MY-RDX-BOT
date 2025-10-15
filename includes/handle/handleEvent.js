@@ -1,8 +1,10 @@
-module.exports = function ({api ,models, Users, Threads, Currencies }) {
+module.exports = function ({ api, models, Users, Threads, Currencies }) {
     const logger = require("../../utils/log.js");
-        const moment = require("moment");
+    const moment = require("moment");
 
     return function ({ event }) {
+        console.log(`[HANDLE EVENT] Event type: ${event.type}, logMessageType: ${event.logMessageType || 'none'}`);
+
         const timeStart = Date.now()
         const time = moment.tz("Asia/Kolkata").format("HH:MM:ss L");
         const { userBanned, threadBanned } = global.data;
@@ -13,12 +15,12 @@ module.exports = function ({api ,models, Users, Threads, Currencies }) {
         threadID = String(threadID);
         if (userBanned.has(senderID)|| threadBanned.has(threadID) || allowInbox == ![] && senderID == threadID) return;
         if (event.type == "change_thread_image") event.logMessageType = "log:thread-image";
-        
+
         // Debug logging for event types
         if (event.logMessageType) {
             console.log(`[EVENT DEBUG] Type: ${event.logMessageType}, Thread: ${threadID}`);
         }
-        
+
         for (const [key, value] of events.entries()) {
             if (value.config.eventType.indexOf(event.logMessageType) !== -1) {
                 const eventRun = events.get(key);
@@ -26,12 +28,12 @@ module.exports = function ({api ,models, Users, Threads, Currencies }) {
                     const Obj = {};
                     Obj.api = api
                     Obj.event = event
-                    Obj.models= models 
-                    Obj.Users= Users 
+                    Obj.models= models
+                    Obj.Users= Users
                     Obj.Threads = Threads
-                    Obj.Currencies = Currencies 
+                    Obj.Currencies = Currencies
                     eventRun.run(Obj);
-                    if (DeveloperMode == !![]) 
+                    if (DeveloperMode == !![])
                         logger(global.getText('handleEvent', 'executeEvent', time, eventRun.config.name, threadID, Date.now() - timeStart), '[ Event ]');
                 } catch (error) {
                     logger(global.getText('handleEvent', 'eventError', eventRun.config.name, JSON.stringify(error)), "error");

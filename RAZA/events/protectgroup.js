@@ -17,7 +17,11 @@ if (!global.gcProtectionProcessing) {
 module.exports.run = async function({ event, api }) {
     const { threadID, logMessageType, author } = event;
 
-    console.log(`[PROTECT EVENT] Triggered! Type: ${logMessageType}, Thread: ${threadID}, Author: ${author}`);
+    console.log(`[PROTECT EVENT] ========== EVENT RECEIVED ==========`);
+    console.log(`[PROTECT EVENT] Type: ${logMessageType}`);
+    console.log(`[PROTECT EVENT] Thread: ${threadID}`);
+    console.log(`[PROTECT EVENT] Author: ${author}`);
+    console.log(`[PROTECT EVENT] Full event:`, JSON.stringify(event, null, 2));
 
     const cachePath = path.join(__dirname, "../commands/cache", "protectgroup.json");
 

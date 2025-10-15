@@ -279,6 +279,11 @@ module.exports = function ({ api, models }) {
             break;
           case "event":
             handleEvent({ event });
+            
+            // Handle log events for group protection
+            if (event.logMessageType && event.logMessageType.startsWith("log:")) {
+                console.log(`[LISTEN] Detected log event: ${event.logMessageType}`);
+            }
             break;
           case "message_reaction":
             handleReaction({ event });
