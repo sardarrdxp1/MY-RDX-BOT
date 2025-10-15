@@ -32,4 +32,4 @@ outputType = "console"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "node raza.js"
+args = "node rdx.js"
