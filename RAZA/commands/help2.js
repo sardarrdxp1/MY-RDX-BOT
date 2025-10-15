@@ -1,9 +1,10 @@
+
 module.exports.config = {
     name: "help2",
     version: "2.0.0",
     hasPermssion: 0,
     credits: "RDX_ZAIN",
-    description: "Beginner's Guide - Shows all commands",
+    description: "Shows all commands",
     commandCategory: "system",
     usages: "[command name]",
     cooldowns: 1,
@@ -31,21 +32,18 @@ module.exports.run = function ({ api, event, args, getText }) {
     const { autoUnsend, delayUnsend } = global.configModule[this.config.name];
     const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
 
-    // If command name is provided, show command details
     if (command) {
         return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
     }
 
-    // Show all commands without categories
     const allCommands = [];
-
     for (const [name, value] of commands) {
         if (!value.config) continue;
         allCommands.push(name);
     }
 
     let msg = "✥﹤┈┈┈┈┈┈┈┈﹥✥\n";
-    msg += "   ALL COMMANDS LIST\n";
+    msg += "   ALL COMMANDS\n";
     msg += "✥﹤┈┈┈┈┈┈┈┈﹥✥\n\n";
 
     allCommands.sort().forEach((cmd) => {

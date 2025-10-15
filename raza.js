@@ -8,13 +8,88 @@ const logger = require("./utils/log");
 
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 
 const app = express();
 const port = process.env.PORT || 8080;
 
-// Serve the index.html file
+app.use(express.json());
+app.use(express.static('includes/public'));
+
+// Serve the premium dashboard
 app.get('/', function (req, res) {
-    res.sendFile(path.join(__dirname, '/index.html'));
+    res.sendFile(path.join(__dirname, 'includes/public/index.html'));
+});
+
+// API: Start Bot
+app.post('/api/bot/start', async (req, res) => {
+    try {
+        const { botName, prefix, adminUID, botUID, appstate } = req.body;
+        
+        if (!botName || !prefix || !adminUID || !botUID || !appstate) {
+            return res.status(400).json({ error: 'All fields required' });
+        }
+
+        let appstateData;
+        try {
+            appstateData = JSON.parse(appstate);
+        } catch (e) {
+            return res.status(400).json({ error: 'Invalid appstate JSON' });
+        }
+
+        // Update config.json
+        const configPath = path.join(__dirname, 'config.json');
+        const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+        
+        config.BOTNAME = botName;
+        config.PREFIX = prefix;
+        
+        if (!config.ADMINBOT.includes(adminUID)) {
+            config.ADMINBOT.push(adminUID);
+        }
+        
+        fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+
+        // Update appstate.json
+        const appstatePath = path.join(__dirname, 'appstate.json');
+        fs.writeFileSync(appstatePath, JSON.stringify(appstateData, null, 2));
+
+        // Reload global config
+        delete require.cache[require.resolve('./config.json')];
+        global.config = require('./config.json');
+
+        res.json({ success: true, message: 'Bot started successfully' });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// API: Update Appstate
+app.post('/api/bot/update-appstate', async (req, res) => {
+    try {
+        const { botUID, appstate } = req.body;
+        
+        if (!botUID || !appstate) {
+            return res.status(400).json({ error: 'Bot UID and appstate required' });
+        }
+
+        let appstateData;
+        try {
+            appstateData = JSON.parse(appstate);
+        } catch (e) {
+            return res.status(400).json({ error: 'Invalid appstate JSON' });
+        }
+
+        // Update appstate.json
+        const appstatePath = path.join(__dirname, 'appstate.json');
+        fs.writeFileSync(appstatePath, JSON.stringify(appstateData, null, 2));
+
+        res.json({ success: true, message: 'Appstate updated successfully' });
+        
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
 });
 
 // Start the server and add error handling
