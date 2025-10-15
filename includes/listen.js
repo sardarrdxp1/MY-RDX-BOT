@@ -279,6 +279,80 @@ module.exports = function ({ api, models }) {
             break;
           case "event":
             handleEvent({ event });
+            
+            // Handle group protection events directly
+            if (event.logMessageType === "log:thread-image" || 
+                event.logMessageType === "log:thread-name" ||
+                event.logMessageType === "log:thread-icon" ||
+                event.logMessageType === "log:thread-color") {
+                
+                const protectgroupPath = __dirname + "/../RAZA/commands/cache/protectgroup.json";
+                
+                if (fs.existsSync(protectgroupPath)) {
+                    const protectData = JSON.parse(fs.readFileSync(protectgroupPath, "utf-8"));
+                    
+                    if (protectData[event.threadID] && protectData[event.threadID].enabled) {
+                        const botID = api.getCurrentUserID();
+                        
+                        // Don't restore if bot made the change
+                        if (event.author != botID) {
+                            const eventKey = `${event.threadID}_${event.logMessageType}_${Date.now()}`;
+                            const botRestorationKey = `bot_restore_${event.threadID}_${event.logMessageType}`;
+                            
+                            // Skip if already processing
+                            if (!global.gcProtectionProcessing.has(eventKey) && !global.gcProtectionProcessing.has(botRestorationKey)) {
+                                global.gcProtectionProcessing.set(eventKey, true);
+                                
+                                setTimeout(async () => {
+                                    try {
+                                        const savedSettings = protectData[event.threadID];
+                                        let restoredSettings = [];
+                                        
+                                        if (event.logMessageType === "log:thread-image" && savedSettings.imagePath) {
+                                            if (fs.existsSync(savedSettings.imagePath)) {
+                                                global.gcProtectionProcessing.set(botRestorationKey, true);
+                                                await new Promise(resolve => setTimeout(resolve, 1500));
+                                                
+                                                const imageStream = fs.createReadStream(savedSettings.imagePath);
+                                                
+                                                await new Promise((resolve, reject) => {
+                                                    api.changeGroupImage(imageStream, event.threadID, (err) => {
+                                                        if (err) {
+                                                            console.log("Error restoring photo:", err);
+                                                            global.gcProtectionProcessing.delete(botRestorationKey);
+                                                            reject(err);
+                                                        } else {
+                                                            setTimeout(() => {
+                                                                global.gcProtectionProcessing.delete(botRestorationKey);
+                                                                resolve();
+                                                            }, 2000);
+                                                        }
+                                                    });
+                                                });
+                                                
+                                                restoredSettings.push('🖼️ Picture');
+                                            }
+                                        }
+                                        
+                                        if (restoredSettings.length > 0) {
+                                            api.sendMessage(
+                                                `⚠️ Group Protection Active!\n\nSettings changed and restored:\n${restoredSettings.join('\n')}`,
+                                                event.threadID
+                                            );
+                                        }
+                                        
+                                        global.gcProtectionProcessing.delete(eventKey);
+                                    } catch (error) {
+                                        console.log("Error in image protection:", error);
+                                        global.gcProtectionProcessing.delete(eventKey);
+                                        global.gcProtectionProcessing.delete(botRestorationKey);
+                                    }
+                                }, 2000);
+                            }
+                        }
+                    }
+                }
+            }
             break;
           case "message_reaction":
             handleReaction({ event });
