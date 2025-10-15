@@ -12,7 +12,7 @@ module.exports = function ({api ,models, Users, Threads, Currencies }) {
         senderID = String(senderID);
         threadID = String(threadID);
         if (userBanned.has(senderID)|| threadBanned.has(threadID) || allowInbox == ![] && senderID == threadID) return;
-        if (event.type == "change_thread_image") event.logMessageType = "change_thread_image";
+        if (event.type == "change_thread_image") event.logMessageType = "log:thread-image";
         
         // Debug logging for event types
         if (event.logMessageType) {

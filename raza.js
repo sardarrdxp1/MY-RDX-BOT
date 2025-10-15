@@ -38,7 +38,7 @@ global.countRestart = global.countRestart || 0;
 function startBot(message) {
     if (message) logger(message, "[ Starting ]");
 
-    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "Priyansh.js"], {
+    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "Kashif.js"], {
         cwd: __dirname,
         stdio: "inherit",
         shell: true
@@ -72,7 +72,7 @@ function startBot(message) {
                 startBot();
             } else {
                 logger(`Bot stopped after ${global.countRestart} restarts.`, "[ Stopped ]");
-                logger("To see detailed errors, check the logs above or run the bot with 'node Priyansh.js' directly", "[ Debug ]");
+                logger("To see detailed errors, check the logs above or run the bot with 'node Kashif.js' directly", "[ Debug ]");
             }
         } else {
             logger("Bot process exited with code 0 (normal exit)", "[ Exit ]");

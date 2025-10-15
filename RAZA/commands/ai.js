@@ -6,7 +6,7 @@ module.exports.config = {
     version: "1.0.0",
     hasPermssion: 0,
     credits: "Kashif Raza",
-    description: "BlackBoxAi by Priyansh",
+    description: "BlackBoxAi by Kashif Raza",
     commandCategory: "ai",
     usages: "[ask]",
     cooldowns: 2,

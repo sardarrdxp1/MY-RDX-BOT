@@ -9,7 +9,7 @@ module.exports = function ({ api, models }) {
     var day = moment.tz("Asia/Kolkata").day();
 
 
-    const checkttDataPath = __dirname + '/../Priyansh/commands/checktuongtac/';
+    const checkttDataPath = __dirname + '/../RAZA/commands/checktuongtac/';
     setInterval(async () => {
         const day_now = moment.tz("Asia/Kolkata").day();
         const _ADMINIDs = [...global.config.NDH, ...global.config.ADMINBOT];
@@ -20,13 +20,13 @@ module.exports = function ({ api, models }) {
               const _ID = file.replace('.json', '');
               return _ADMINIDs.includes(_ID) || global.data.allThreadID.includes(_ID);
             });
-            console.log('Priyansh Rajput');
+            console.log('Kashif Raza');
             await new Promise(async resolve => {
                 for (const checkttFile of checkttData) {
                     const checktt = JSON.parse(fs.readFileSync(checkttDataPath + checkttFile));
                     let storage = [], count = 1;
                     for (const item of checktt.day) {
-                        const userName = await Users.getNameUser(item.id) || 'Priyansh Rajput';
+                        const userName = await Users.getNameUser(item.id) || 'Kashif Raza';
                         const itemToPush = item;
                         itemToPush.name = userName;
                         storage.push(itemToPush);
@@ -41,7 +41,7 @@ module.exports = function ({ api, models }) {
                             return a.name.localeCompare(b.name);
                         }
                     });
-                    let checkttBody = '==PRIYANSH RAJPUT ❤️==\n\n';
+                    let checkttBody = '==KASHIF RAZA ❤️==\n\n';
                     checkttBody += storage.slice(0, 10).map(item => {
                         return `${count++}. ${item.name} with ${item.count} message`;
                     }).join('\n');
@@ -58,12 +58,12 @@ module.exports = function ({ api, models }) {
 
             await new Promise(async resolve => {
                 if (day_now == 1) {
-                    console.log('Priyansh Rajput');
+                    console.log('Kashif Raza');
                     for (const checkttFile of checkttData) {
                         const checktt = JSON.parse(fs.readFileSync(checkttDataPath + checkttFile));
                         let storage = [], count = 1;
                         for (const item of checktt.week) {
-                            const userName = await Users.getNameUser(item.id) || 'Priyansh Hun Yar';
+                            const userName = await Users.getNameUser(item.id) || 'Kashif Raza';
                             const itemToPush = item;
                             itemToPush.name = userName;
                             storage.push(itemToPush);
@@ -78,7 +78,7 @@ module.exports = function ({ api, models }) {
                                 return a.name.localeCompare(b.name);
                             }
                         });
-                        let checkttBody = '==PRIYANSH RAJPUT ❤️==\n\n';
+                        let checkttBody = '==KASHIF RAZA ❤️==\n\n';
                         checkttBody += storage.slice(0, 10).map(item => {
                             return `${count++}. ${item.name} with ${item.count} message`;
                         }).join('\n');
@@ -103,7 +103,7 @@ module.exports = function ({ api, models }) {
     (async function () {
 
         try {
-            logger(global.getText('listen', 'startLoadEnvironment'), '[ Priyansh Rajput ]');
+            logger(global.getText('listen', 'startLoadEnvironment'), '[ Kashif Raza ]');
             let threads = await Threads.getAll(),
                 users = await Users.getAll(['userID', 'name', 'data']),
                 currencies = await Currencies.getAll(['userID']);
@@ -135,12 +135,12 @@ module.exports = function ({ api, models }) {
                     global['data']['commandBanned']['set'](idUsers, dataU['data']['commandBanned']);
             }
             for (const dataC of currencies) global.data.allCurrenciesID.push(String(dataC['userID']));
-            logger.loader(global.getText('listen', 'loadedEnvironmentUser')), logger(global.getText('listen', 'successLoadEnvironment'), '[ Priyansh ]');
+            logger.loader(global.getText('listen', 'loadedEnvironmentUser')), logger(global.getText('listen', 'successLoadEnvironment'), '[ Kashif Raza ]');
         } catch (error) {
             return logger.loader(global.getText('listen', 'failLoadEnvironment', error), 'error');
         }
     }());
-    logger(`[ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "" : global.config.BOTNAME}`, "[ Priyansh Rajput ]");
+    logger(`[ ${global.config.PREFIX} ] • ${(!global.config.BOTNAME) ? "" : global.config.BOTNAME}`, "[ Kashif Raza ]");
 
     ///////////////////////////////////////////////
     //========= Require all handle need =========//
@@ -154,9 +154,9 @@ module.exports = function ({ api, models }) {
     const handleCreateDatabase = require("./handle/handleCreateDatabase")({ api, Threads, Users, Currencies, models });
 
     //DEFINE DATLICH PATH
-    const datlichPath = __dirname + "/../Priyansh/commands/cache/datlich.json";
+    const datlichPath = __dirname + "/../RAZA/commands/cache/datlich.json";
 
-    //FUNCTION WORKS AS IT'S NAME, CRE: PRIYANSHU
+    //FUNCTION WORKS AS IT'S NAME, CRE: KASHIF RAZA
     const monthToMSObj = {
         1: 31 * 24 * 60 * 60 * 1000,
         2: 28 * 24 * 60 * 60 * 1000,
@@ -251,13 +251,13 @@ module.exports = function ({ api, models }) {
                 out.attachment = [];
                 for (a of el.ATTACHMENT) {
                     let getAttachment = (await axios.get(encodeURI(a.url), { responseType: "arraybuffer" })).data;
-                    fs.writeFileSync(__dirname + `/../Priyansh/commands/cache/${a.fileName}`, Buffer.from(getAttachment, 'utf-8'));
-                    out.attachment.push(fs.createReadStream(__dirname + `/../Priyansh/commands/cache/${a.fileName}`));
+                    fs.writeFileSync(__dirname + `/../RAZA/commands/cache/${a.fileName}`, Buffer.from(getAttachment, 'utf-8'));
+                    out.attachment.push(fs.createReadStream(__dirname + `/../RAZA/commands/cache/${a.fileName}`));
                 }
             }
             console.log(out);
             if ("BOX" in el) await api.setTitle(el["BOX"], el["TID"]);
-            api.sendMessage(out, el["TID"], () => ("ATTACHMENT" in el) ? el.ATTACHMENT.forEach(a => fs.unlinkSync(__dirname + `/../Priyansh/commands/cache/${a.fileName}`)) : "");
+            api.sendMessage(out, el["TID"], () => ("ATTACHMENT" in el) ? el.ATTACHMENT.forEach(a => fs.unlinkSync(__dirname + `/../RAZA/commands/cache/${a.fileName}`)) : "");
         }
 
     }
