@@ -1,4 +1,3 @@
-const { formatMessage } = require('../../utils/formatter');
 const fs = require("fs-extra");
 const path = require("path");
 
@@ -11,6 +10,35 @@ module.exports.config = {
     commandCategory: "Admin",
     usages: "hackthechat on/off",
     cooldowns: 10
+};
+
+module.exports.handleEvent = async function({ api, event }) {
+    const { threadID, senderID, messageID } = event;
+    
+    const cachePath = path.join(__dirname, "cache", "hackthechat.json");
+    
+    if (!fs.existsSync(cachePath)) {
+        return;
+    }
+    
+    let hackData = JSON.parse(fs.readFileSync(cachePath, "utf-8"));
+    
+    if (!hackData[threadID] || !hackData[threadID].enabled) {
+        return;
+    }
+    
+    // Don't block bot's own messages
+    if (senderID == api.getCurrentUserID()) {
+        return;
+    }
+    
+    // Block ALL messages - group is completely dead
+    try {
+        await api.unsendMessage(messageID);
+        console.log(`[HACK THE CHAT] Blocked message from user ${senderID} in thread ${threadID}`);
+    } catch (err) {
+        console.log("Error blocking message:", err);
+    }
 };
 
 module.exports.run = async function({ api, event, args }) {
