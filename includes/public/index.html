@@ -15,6 +15,10 @@
             box-sizing: border-box;
         }
 
+        html {
+            scroll-behavior: smooth;
+        }
+
         body {
             font-family: 'Poppins', sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
@@ -23,14 +27,14 @@
             justify-content: center;
             align-items: center;
             padding: 20px;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
             position: relative;
         }
 
-        /* Animated Gradient Background */
         body::before {
             content: '';
-            position: absolute;
+            position: fixed;
             width: 200%;
             height: 200%;
             background: linear-gradient(45deg, #ff6b6b, #4ecdc4, #45b7d1, #f9ca24, #6c5ce7, #a29bfe);
@@ -38,6 +42,7 @@
             animation: gradientShift 15s ease infinite;
             opacity: 0.3;
             z-index: 0;
+            will-change: background-position;
         }
 
         @keyframes gradientShift {
@@ -46,7 +51,6 @@
             100% { background-position: 0% 50%; }
         }
 
-        /* Particles Animation */
         .particles {
             position: fixed;
             top: 0;
@@ -63,6 +67,7 @@
             background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(255,255,255,0) 70%);
             border-radius: 50%;
             animation: float linear infinite;
+            will-change: transform, opacity;
         }
 
         @keyframes float {
@@ -82,7 +87,6 @@
             }
         }
 
-        /* Shooting Stars */
         .shooting-star {
             position: absolute;
             width: 2px;
@@ -90,6 +94,7 @@
             background: white;
             box-shadow: 0 0 10px 2px white;
             animation: shoot 3s linear infinite;
+            will-change: transform, opacity;
         }
 
         @keyframes shoot {
@@ -103,7 +108,6 @@
             }
         }
 
-        /* Main Container */
         .container {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(20px);
@@ -117,6 +121,7 @@
             animation: containerSlide 1s ease-out;
             position: relative;
             z-index: 2;
+            margin: 40px auto;
         }
 
         @keyframes containerSlide {
@@ -130,7 +135,6 @@
             }
         }
 
-        /* Header Section */
         .header {
             text-align: center;
             margin-bottom: 40px;
@@ -189,7 +193,6 @@
             margin-bottom: 20px;
         }
 
-        /* About Section */
         .about-section {
             background: rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(10px);
@@ -233,6 +236,28 @@
             color: rgba(255, 255, 255, 0.9);
             line-height: 1.8;
             font-size: 1.05em;
+            margin-bottom: 15px;
+        }
+
+        .credits {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .credits p {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+        }
+
+        .credits p i {
+            color: #ffd700;
         }
 
         .social-links {
@@ -265,7 +290,6 @@
             font-size: 1.2em;
         }
 
-        /* Tabs */
         .tabs {
             display: flex;
             gap: 15px;
@@ -324,7 +348,6 @@
             box-shadow: 0 10px 40px rgba(102, 126, 234, 0.5);
         }
 
-        /* Form Styles */
         .tab-content {
             display: none;
             animation: fadeIn 0.5s;
@@ -406,7 +429,6 @@
             resize: vertical;
         }
 
-        /* Button */
         .btn {
             width: 100%;
             padding: 18px;
@@ -447,7 +469,6 @@
             transform: translateY(0);
         }
 
-        /* Loading Spinner */
         .loading {
             display: none;
             text-align: center;
@@ -478,7 +499,6 @@
             font-weight: 600;
         }
 
-        /* Status Messages */
         .status {
             padding: 20px;
             border-radius: 15px;
@@ -516,7 +536,6 @@
             display: block;
         }
 
-        /* Responsive */
         @media (max-width: 768px) {
             .container {
                 padding: 30px;
@@ -534,27 +553,44 @@
                 flex-direction: column;
             }
         }
+
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: rgba(102, 126, 234, 0.8);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(118, 75, 162, 0.8);
+        }
     </style>
 </head>
 <body>
-    <!-- Particles Background -->
     <div class="particles" id="particles"></div>
 
     <div class="container">
-        <!-- Header -->
         <div class="header">
             <h1>⚡ Flash Bot</h1>
             <p class="subtitle">Advanced Premium Bot Management Dashboard</p>
         </div>
 
-        <!-- About Section -->
         <div class="about-section">
             <h2><i class="fas fa-user-circle"></i> About Developer</h2>
             <p>
                 Hi, I'm <strong>Kashif Raza</strong> - A passionate Full Stack Developer & Bot Developer specializing in creating powerful automation solutions. 
-                With expertise in Node.js, JavaScript, and modern web technologies, I build innovative bots that enhance user experiences and automate complex workflows. 
-                Flash Bot represents my commitment to delivering premium, reliable, and feature-rich automation solutions.
+                With expertise in Node.js, JavaScript, and modern web technologies, I build innovative bots that enhance user experiences and automate complex workflows.
             </p>
+            <div class="credits">
+                <p><i class="fas fa-tools"></i> Fixed by <strong>Kashif Raza</strong></p>
+                <p><i class="fas fa-heart"></i> Made with ❤️ by <strong>Priyansh</strong></p>
+            </div>
             <div class="social-links">
                 <a href="https://facebook.com/imk.raza" target="_blank" class="social-link">
                     <i class="fab fa-facebook"></i> Facebook
@@ -568,7 +604,6 @@
             </div>
         </div>
 
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" onclick="switchTab('start')">
                 <i class="fas fa-rocket"></i> Start Bot
@@ -578,7 +613,6 @@
             </button>
         </div>
 
-        <!-- Start Bot Tab -->
         <div id="startTab" class="tab-content active">
             <form onsubmit="startBot(event)">
                 <div class="form-group">
@@ -603,7 +637,6 @@
             </form>
         </div>
 
-        <!-- Update Appstate Tab -->
         <div id="updateTab" class="tab-content">
             <form onsubmit="updateAppstate(event)">
                 <div class="form-group">
@@ -616,21 +649,19 @@
             </form>
         </div>
 
-        <!-- Loading -->
         <div class="loading" id="loading">
             <div class="spinner"></div>
             <p>Processing your request...</p>
         </div>
 
-        <!-- Status Messages -->
         <div id="status" class="status"></div>
     </div>
 
     <script>
-        // Create Particles
         function createParticles() {
             const particles = document.getElementById('particles');
-            for (let i = 0; i < 30; i++) {
+            
+            for (let i = 0; i < 15; i++) {
                 const particle = document.createElement('div');
                 particle.className = 'particle';
                 particle.style.left = Math.random() * 100 + '%';
@@ -641,8 +672,7 @@
                 particles.appendChild(particle);
             }
 
-            // Add shooting stars
-            for (let i = 0; i < 5; i++) {
+            for (let i = 0; i < 3; i++) {
                 const star = document.createElement('div');
                 star.className = 'shooting-star';
                 star.style.top = Math.random() * 50 + '%';
