@@ -25,6 +25,12 @@ module.exports = function ({ api, models, Users, Threads, Currencies }) {
     if(!global.data.allThreadID.includes(threadID) && !ADMINBOT.includes(senderID) && adminbot.adminPaOnly == true)
     return api.sendMessage("MODE » Only admins can use bots in their own inbox", threadID, messageID)
     ////end 
+    // Check adminOnly mode from config
+    const configData = require('./../../config.json');
+    if (configData.adminOnly === true && !ADMINBOT.includes(senderID)) {
+      return api.sendMessage('🔒 Admin Only Mode is enabled. Only bot admins can use commands.', threadID, messageID);
+    }
+    
     if (!ADMINBOT.includes(senderID) && adminbot.adminOnly == true) {
       if (!ADMINBOT.includes(senderID) && adminbot.adminOnly == true) return api.sendMessage('MODE » Only admins can use bots', threadID, messageID)
     }
