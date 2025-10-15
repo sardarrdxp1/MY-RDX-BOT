@@ -119,6 +119,7 @@ Preferred communication style: Simple, everyday language.
 - Anti-out to prevent member removals
 - Anti-robbery to protect admin roles
 - Approval system for groups
+- Group protection system (protectgroup command) - locks and auto-restores group name, picture, theme, and emoji
 
 ## Web Dashboard (Uptime Monitor)
 
@@ -187,3 +188,31 @@ Preferred communication style: Simple, everyday language.
 **Purpose**: Store user data, thread settings, currency/economy data
 
 **Note**: Application uses configurable database type - can be extended to support other databases through the models layer.
+# Recent Changes
+
+## October 15, 2025 - Group Protection Feature
+
+**Added**: New `protectgroup` command and event system
+
+**Implementation**:
+- Command file: `Priyansh/commands/protectgroup.js`
+- Event listener: `Priyansh/events/protectgroup.js`
+- Cache storage: `Priyansh/commands/cache/protectgroup.json`
+
+**Features**:
+- Protects 4 group settings: name, picture, theme (color), and emoji
+- Automatically detects and restores changes when protection is enabled
+- Stores group settings in JSON cache with base64-encoded images
+- Uses transparent PNG placeholder for groups without original pictures (platform limitation workaround)
+
+**Usage**: `protectgroup on/off`
+
+**Permission Level**: 1 (Group Admin)
+
+**Event Types Monitored**:
+- `log:thread-name` - Group name changes
+- `log:thread-icon` - Group emoji changes  
+- `log:thread-color` - Group theme changes
+- `log:thread-image` - Group picture changes
+
+**Known Limitations**: Facebook API doesn't provide a method to completely remove group pictures, so the bot uses a transparent 1x1 PNG as a workaround when restoring groups that originally had no picture.
