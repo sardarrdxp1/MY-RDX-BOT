@@ -1,6 +1,6 @@
 # Overview
 
-This is a Facebook Messenger chatbot built with Node.js that provides automated responses, moderation features, and various interactive commands. The bot uses a custom Facebook Chat API implementation (kashif-raza-fca) to interact with Facebook Messenger groups and users. It's designed to provide entertainment, utility features, and group management capabilities with a focus on multilingual support (English and Urdu/Hindi).
+This is a Facebook Messenger chatbot built with Node.js that provides automated responses, moderation features, and various interactive commands. The bot uses a custom Facebook Chat API implementation (sardar-rdx-fca) to interact with Facebook Messenger groups and users. It's designed to provide entertainment, utility features, and group management capabilities with a focus on multilingual support (English and Urdu/Hindi).
 
 # User Preferences
 
@@ -12,11 +12,11 @@ Preferred communication style: Simple, everyday language.
 
 **Problem**: Need a robust event-driven architecture to handle Facebook Messenger interactions and command execution.
 
-**Solution**: Implemented a global client object that manages commands, events, cooldowns, and various handler registries. The main entry point (`Kashif.js`) initializes the bot and loads all modules dynamically.
+**Solution**: Implemented a global client object that manages commands, events, cooldowns, and various handler registries. The main entry point (`sardar.js`) initializes the bot and loads all modules dynamically.
 
 **Key Components**:
 - Global client object stores command maps, event handlers, and state
-- Dynamic module loading from the `RAZA/commands` directory
+- Dynamic module loading from the `RDX/commands` directory
 - Event-driven architecture with separate handlers for messages, reactions, and scheduled tasks
 - Time utilities using moment-timezone for Asia/Kolkata timezone
 
@@ -45,7 +45,7 @@ Preferred communication style: Simple, everyday language.
 
 **Architecture**:
 - Each command exports a config object (name, version, permissions, category, cooldowns)
-- Commands stored in `RAZA/commands` directory
+- Commands stored in `RDX/commands` directory
 - Support for command categories, permission levels (0=user, 1=group admin, 2=bot admin)
 - Built-in cooldown management
 - No-prefix commands for natural language interactions
@@ -136,11 +136,11 @@ Preferred communication style: Simple, everyday language.
 
 # External Dependencies
 
-## Facebook Chat API (kashif-raza-fca)
+## Facebook Chat API (sardar-rdx-fca)
 
 **Purpose**: Custom implementation of Facebook Chat API for unofficial bot access
 
-**Integration**: Located in `kashif-raza-fca` directory, provides login and messaging capabilities
+**Integration**: Located in `sardar-rdx-fca` directory, provides login and messaging capabilities
 
 **Key Features**: Message editing, typing indicators, thread management, MQTT listening
 
@@ -190,6 +190,20 @@ Preferred communication style: Simple, everyday language.
 **Note**: Application uses configurable database type - can be extended to support other databases through the models layer.
 # Recent Changes
 
+## October 15, 2025 - Complete Rebranding from Kashif Raza to sardar rdx
+
+**Rebranding**: Complete rebranding from "Kashif Raza" to "sardar rdx"
+- Updated all user-facing messages and branding across the entire bot
+- Renamed core files: Kashif.js → sardar.js, raza.js → rdx.js, kashif-raza.json → sardar-rdx.json
+- Renamed folders: RAZA/ → RDX/, kashif-raza-fca/ → sardar-rdx-fca/
+- Updated language keys from "kashif.*" to "sardar.*" in en.lang
+- Updated package.json metadata (name, description, author)
+- Updated sardar-rdx-fca package metadata
+- Updated dashboard HTML with new branding and contact information
+- Updated logger utility with new branding prefix
+- Updated all root directory files (excluding command folder as per requirement)
+- Updated replit.md documentation with new references
+
 ## October 15, 2025 - Dashboard Improvements & Auto-Restart
 
 **Dashboard Auto-Restart Feature**:
@@ -200,16 +214,16 @@ Preferred communication style: Simple, everyday language.
 
 **Config Temp File Removal**:
 - Removed config.json.temp file creation and deletion
-- Simplified config loading logic in Kashif.js
+- Simplified config loading logic in sardar.js
 - Cleaner file structure without temporary files
 
 ## October 15, 2025 - Complete Rebranding & Bug Fixes
 
-**Rebranding**: Complete rebranding from "Priyansh" to "Kashif Raza"
+**Rebranding**: Complete rebranding from "Priyansh" to "sardar rdx"
 - Updated all user-facing messages and branding
-- Renamed core files: index.js → raza.js, Priyansh.js → Kashif.js, PriyanshFca.json → kashif-raza.json
-- Renamed folder: Priyansh/ → RAZA/
-- Updated language keys from "priyansh.*" to "kashif.*"
+- Renamed core files: index.js → rdx.js, Priyansh.js → sardar.js, PriyanshFca.json → sardar-rdx.json
+- Renamed folder: Priyansh/ → RDX/
+- Updated language keys from "priyansh.*" to "sardar.*"
 - Updated package.json metadata (name, description, author)
 - Updated config.json APIKEY
 
@@ -222,9 +236,9 @@ Preferred communication style: Simple, everyday language.
 **Added**: New `protectgroup` command and event system
 
 **Implementation**:
-- Command file: `Priyansh/commands/protectgroup.js`
-- Event listener: `Priyansh/events/protectgroup.js`
-- Cache storage: `Priyansh/commands/cache/protectgroup.json`
+- Command file: `RDX/commands/protectgroup.js`
+- Event listener: `RDX/events/protectgroup.js`
+- Cache storage: `RDX/commands/cache/protectgroup.json`
 
 **Features**:
 - Protects 4 group settings: name, picture, theme (color), and emoji
