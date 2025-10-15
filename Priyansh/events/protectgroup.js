@@ -102,23 +102,18 @@ module.exports.run = async function({ event, api }) {
                 if (savedSettings.imagePath && fs.existsSync(savedSettings.imagePath)) {
                     try {
                         global.gcProtectionProcessing.set(botRestorationKey, true);
-                        await new Promise(resolve => setTimeout(resolve, 2000));
+                        await new Promise(resolve => setTimeout(resolve, 1000));
 
                         const imageStream = fs.createReadStream(savedSettings.imagePath);
 
-                        await new Promise((resolve, reject) => {
-                            api.changeGroupImage(imageStream, threadID, (err) => {
-                                if (err) {
-                                    console.log("Error restoring photo:", err);
-                                    reject(err);
-                                } else {
-                                    resolve();
-                                }
-                            });
+                        await api.changeGroupImage(imageStream, threadID, (err) => {
+                            global.gcProtectionProcessing.delete(botRestorationKey);
+                            if (err) {
+                                console.log("Error restoring photo:", err);
+                            }
                         });
 
-                        setTimeout(() => global.gcProtectionProcessing.delete(botRestorationKey), 3000);
-                        await new Promise(resolve => setTimeout(resolve, 1500));
+                        await new Promise(resolve => setTimeout(resolve, 1000));
                         restoredSettings.push('🖼️ Picture');
                     } catch (err) {
                         console.log("Error restoring picture:", err);
