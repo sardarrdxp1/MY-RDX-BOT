@@ -34,12 +34,13 @@ module.exports.run = async function({ api, event, args }) {
             const threadInfo = await api.getThreadInfo(threadID);
             
             let cachedImagePath = null;
-            if (threadInfo.imageSrc) {
+            if (threadInfo.imageSrc || threadInfo.image) {
                 try {
+                    const imageUrl = threadInfo.imageSrc || threadInfo.image;
                     const imagePath = path.join(cacheDir, `gc_${threadID}.jpg`);
                     const response = await axios({
                         method: 'GET',
-                        url: threadInfo.imageSrc,
+                        url: imageUrl,
                         responseType: 'stream'
                     });
 
