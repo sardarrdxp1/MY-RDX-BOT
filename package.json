@@ -52,6 +52,7 @@
                     "gradient-string": "^1.1.0",
                     "https-proxy-agent": "^4.0.0",
                     "image-downloader": "^4.3.0",
+                    "javascript-obfuscator": "^4.1.1",
                     "jimp": "^0.16.13",
                     "jsonpath-plus": "^10.3.0",
                     "lodash": "^4.17.21",

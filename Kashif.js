@@ -78,12 +78,7 @@ try {
     logger.loader("Found file config: config.json");
 }
 catch {
-    if (existsSync(global.client.configPath.replace(/\.json/g,"") + ".temp")) {
-        configValue = readFileSync(global.client.configPath.replace(/\.json/g,"") + ".temp");
-        configValue = JSON.parse(configValue);
-        logger.loader(`Found: ${global.client.configPath.replace(/\.json/g,"") + ".temp"}`);
-    }
-    else return logger.loader("config.json not found!", "error");
+    return logger.loader("config.json not found!", "error");
 }
 
 try {
@@ -93,8 +88,6 @@ try {
 catch { return logger.loader("Can't load file config!", "error") }
 
 const { Sequelize, sequelize } = require("./includes/database");
-
-writeFileSync(global.client.configPath + ".temp", JSON.stringify(global.config, null, 4), 'utf8');
 
 /////////////////////////////////////////
 //========= Load language use =========//
@@ -287,7 +280,6 @@ function onBot({ models: botModel }) {
         logger.loader(`Startup Time: ${((Date.now() - global.client.timeStart) / 1000).toFixed()}s`)
         logger.loader('===== [ ' + (Date.now() - global.client.timeStart) + 'ms ] =====')
         writeFileSync(global.client['configPath'], JSON['stringify'](global.config, null, 4), 'utf8')
-        unlinkSync(global['client']['configPath'] + '.temp');
         const listenerData = {};
         listenerData.api = loginApiData;
         listenerData.models = botModel;

@@ -16,6 +16,10 @@ const port = process.env.PORT || 8080;
 app.use(express.json());
 app.use(express.static('includes/public'));
 
+// Global bot process variable
+let botProcess = null;
+let manualRestart = false;
+
 // Serve the premium dashboard
 app.get('/', function (req, res) {
     res.sendFile(path.join(__dirname, 'includes/public/index.html'));
@@ -58,7 +62,10 @@ app.post('/api/bot/start', async (req, res) => {
         delete require.cache[require.resolve('./config.json')];
         global.config = require('./config.json');
 
-        res.json({ success: true, message: 'Bot started successfully' });
+        // Restart bot automatically
+        restartBot();
+
+        res.json({ success: true, message: 'Bot configuration saved and restarting...' });
         
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -85,7 +92,10 @@ app.post('/api/bot/update-appstate', async (req, res) => {
         const appstatePath = path.join(__dirname, 'appstate.json');
         fs.writeFileSync(appstatePath, JSON.stringify(appstateData, null, 2));
 
-        res.json({ success: true, message: 'Appstate updated successfully' });
+        // Restart bot automatically
+        restartBot();
+
+        res.json({ success: true, message: 'Appstate updated and bot restarting...' });
         
     } catch (error) {
         res.status(500).json({ error: error.message });
@@ -110,34 +120,56 @@ app.listen(port, () => {
 // Initialize global restart counter
 global.countRestart = global.countRestart || 0;
 
+// Function to restart bot
+function restartBot() {
+    if (botProcess) {
+        logger("Stopping current bot process...", "[ Restart ]");
+        manualRestart = true;
+        botProcess.kill();
+        
+        setTimeout(() => {
+            logger("Starting new bot process...", "[ Restart ]");
+            manualRestart = false;
+            startBot("Bot restarted from dashboard");
+        }, 2000);
+    } else {
+        startBot("Starting bot from dashboard");
+    }
+}
+
 function startBot(message) {
     if (message) logger(message, "[ Starting ]");
 
-    const child = spawn("node", ["--trace-warnings", "--async-stack-traces", "Kashif.js"], {
+    botProcess = spawn("node", ["--trace-warnings", "--async-stack-traces", "Kashif.js"], {
         cwd: __dirname,
         stdio: "inherit",
         shell: true
     });
 
     // Add more detailed error logging
-    child.on("error", (error) => {
+    botProcess.on("error", (error) => {
         logger(`Bot process error: ${error.stack || error.message}`, "[ Error ]");
     });
 
     // Add stdout and stderr handling for better debugging
-    if (child.stdout) {
-        child.stdout.on('data', (data) => {
+    if (botProcess.stdout) {
+        botProcess.stdout.on('data', (data) => {
             console.log(`stdout: ${data}`);
         });
     }
 
-    if (child.stderr) {
-        child.stderr.on('data', (data) => {
+    if (botProcess.stderr) {
+        botProcess.stderr.on('data', (data) => {
             console.error(`stderr: ${data}`);
         });
     }
 
-    child.on("close", (codeExit) => {
+    botProcess.on("close", (codeExit) => {
+        if (manualRestart) {
+            logger("Bot stopped for manual restart", "[ Restart ]");
+            return;
+        }
+        
         if (codeExit !== 0) {
             logger(`Bot exited with code ${codeExit}`, "[ Exit ]");
             
