@@ -1,4 +1,3 @@
-
 module.exports.config = {
     name: "help2",
     version: "2.0.0",
@@ -23,26 +22,6 @@ module.exports.languages = {
     }
 };
 
-module.exports.handleEvent = function ({ api, event, getText }) {
-    const { commands } = global.client;
-    const { threadID, messageID, body } = event;
-
-    if (!body || typeof body == "undefined") return;
-    
-    const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
-    const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
-    
-    // Check if message starts with prefix + "help2"
-    if (!body.startsWith(prefix + "help2")) return;
-    
-    const splitBody = body.slice(prefix.length).trim().split(/\s+/);
-    if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
-    
-    const command = commands.get(splitBody[1].toLowerCase());
-    
-    return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
-}
-
 module.exports.run = function ({ api, event, args, getText }) {
     const { commands } = global.client;
     const { threadID, messageID } = event;
@@ -59,7 +38,7 @@ module.exports.run = function ({ api, event, args, getText }) {
 
     // Show all commands without categories
     const allCommands = [];
-    
+
     for (const [name, value] of commands) {
         if (!value.config) continue;
         allCommands.push(name);
