@@ -67,36 +67,24 @@ module.exports.run = async function({ event, api }) {
             
             case "log:thread-color": {
                 if (savedSettings.themeId) {
-                    await new Promise(resolve => setTimeout(resolve, 3000));
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                     try {
-                        // Use alternative method with proper formatting
-                        const form = {
-                            source: "SETTINGS",
-                            theme_id: savedSettings.themeId,
-                            thread_id: threadID
-                        };
-                        
-                        await api.changeThreadColor(savedSettings.themeId, threadID);
+                        // Use MQTT-based theme API for better reliability
+                        await api.theme(savedSettings.themeId, threadID);
                         
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
-                            `Group theme change detected and restored.`,
+                            `Group theme change detected and restored successfully.`,
                             threadID
                         );
                     } catch (err) {
                         console.log("Theme restore error:", err);
-                        // Try alternative restore method
-                        try {
-                            await new Promise(resolve => setTimeout(resolve, 2000));
-                            await api.changeThreadColor(savedSettings.themeId, threadID);
-                        } catch (e) {
-                            api.sendMessage(
-                                `⚠️ Group Protection Active!\n\n` +
-                                `Theme change detected. Auto-restore failed.\n` +
-                                `Please manually set theme to: ${savedSettings.themeId}`,
-                                threadID
-                            );
-                        }
+                        api.sendMessage(
+                            `⚠️ Group Protection Active!\n\n` +
+                            `Theme change detected. Auto-restore failed.\n` +
+                            `Please manually set theme to: ${savedSettings.themeId}`,
+                            threadID
+                        );
                     }
                 }
                 break;
@@ -104,7 +92,7 @@ module.exports.run = async function({ event, api }) {
             
             case "log:thread-image": {
                 console.log("Picture change detected for thread:", threadID);
-                await new Promise(resolve => setTimeout(resolve, 2500));
+                await new Promise(resolve => setTimeout(resolve, 3000));
                 
                 if (savedSettings.hasImage && savedSettings.image) {
                     const imagePath = path.join(__dirname, "cache", `protect_${threadID}.jpg`);
@@ -119,11 +107,14 @@ module.exports.run = async function({ event, api }) {
                         
                         fs.writeFileSync(imagePath, imageBuffer);
                         
+                        // Wait a bit before restoring to avoid conflicts
+                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        
                         await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
                         
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
-                            `Group picture change detected and restored.`,
+                            `Group picture change detected and restored successfully.`,
                             threadID
                         );
                         
