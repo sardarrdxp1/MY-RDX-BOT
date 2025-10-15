@@ -30,12 +30,7 @@ module.exports.run = async function({ event, api }) {
         return;
     }
     
-    // Don't block the admin who locked the chat
-    if (senderID == hackData[threadID].locked_by) {
-        return;
-    }
-    
-    // Block the message by unsending it immediately
+    // Block ALL messages - group is completely dead
     try {
         await api.unsendMessage(messageID);
         console.log(`[HACK THE CHAT] Blocked message from user ${senderID} in thread ${threadID}`);
