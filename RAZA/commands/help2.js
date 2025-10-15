@@ -25,20 +25,23 @@ module.exports.languages = {
 
 module.exports.handleEvent = function ({ api, event, getText }) {
     const { commands } = global.client;
-    const { threadID, messageID, body, senderID } = event;
+    const { threadID, messageID, body } = event;
 
-    if (!body || typeof body == "undefined" || body.indexOf("help2") != 0) return;
-    const splitBody = body.slice(body.indexOf("help2")).trim().split(/\s+/);
+    if (!body || typeof body == "undefined" || !body.startsWith("help2")) return;
+    
+    const splitBody = body.trim().split(/\s+/);
     if (splitBody.length == 1 || !commands.has(splitBody[1].toLowerCase())) return;
+    
     const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
     const command = commands.get(splitBody[1].toLowerCase());
     const prefix = (threadSetting.hasOwnProperty("PREFIX")) ? threadSetting.PREFIX : global.config.PREFIX;
+    
     return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
 }
 
 module.exports.run = function ({ api, event, args, getText }) {
     const { commands } = global.client;
-    const { threadID, messageID, senderID } = event;
+    const { threadID, messageID } = event;
 
     const command = commands.get((args[0] || "").toLowerCase());
     const threadSetting = global.data.threadData.get(parseInt(threadID)) || {};
@@ -54,6 +57,7 @@ module.exports.run = function ({ api, event, args, getText }) {
     const categories = {};
     
     for (const [name, value] of commands) {
+        if (!value.config || !value.config.commandCategory) continue;
         const category = value.config.commandCategory || "Uncategorized";
         if (!categories[category]) categories[category] = [];
         categories[category].push(name);
@@ -66,7 +70,7 @@ module.exports.run = function ({ api, event, args, getText }) {
     Object.keys(categories).sort().forEach(category => {
         msg += `✿ ${category.toUpperCase()}\n`;
         categories[category].sort().forEach((cmd) => {
-            msg += `╰┈➤${cmd}\n`;
+            msg += `╰┈➤ ${cmd}\n`;
         });
         msg += `\n`;
     });
@@ -81,5 +85,5 @@ module.exports.run = function ({ api, event, args, getText }) {
             await new Promise(resolve => setTimeout(resolve, delayUnsend * 1000));
             return api.unsendMessage(info.messageID);
         } else return;
-    }, event.messageID);
+    }, messageID);
 };
