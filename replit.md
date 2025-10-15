@@ -12,11 +12,11 @@ Preferred communication style: Simple, everyday language.
 
 **Problem**: Need a robust event-driven architecture to handle Facebook Messenger interactions and command execution.
 
-**Solution**: Implemented a global client object that manages commands, events, cooldowns, and various handler registries. The main entry point (`Priyansh.js`) initializes the bot and loads all modules dynamically.
+**Solution**: Implemented a global client object that manages commands, events, cooldowns, and various handler registries. The main entry point (`Kashif.js`) initializes the bot and loads all modules dynamically.
 
 **Key Components**:
 - Global client object stores command maps, event handlers, and state
-- Dynamic module loading from the `Priyansh/commands` directory
+- Dynamic module loading from the `RAZA/commands` directory
 - Event-driven architecture with separate handlers for messages, reactions, and scheduled tasks
 - Time utilities using moment-timezone for Asia/Kolkata timezone
 
@@ -45,7 +45,7 @@ Preferred communication style: Simple, everyday language.
 
 **Architecture**:
 - Each command exports a config object (name, version, permissions, category, cooldowns)
-- Commands stored in `Priyansh/commands` directory
+- Commands stored in `RAZA/commands` directory
 - Support for command categories, permission levels (0=user, 1=group admin, 2=bot admin)
 - Built-in cooldown management
 - No-prefix commands for natural language interactions
@@ -189,6 +189,20 @@ Preferred communication style: Simple, everyday language.
 
 **Note**: Application uses configurable database type - can be extended to support other databases through the models layer.
 # Recent Changes
+
+## October 15, 2025 - Complete Rebranding & Bug Fixes
+
+**Rebranding**: Complete rebranding from "Priyansh" to "Kashif Raza"
+- Updated all user-facing messages and branding
+- Renamed core files: index.js → raza.js, Priyansh.js → Kashif.js, PriyanshFca.json → kashif-raza.json
+- Renamed folder: Priyansh/ → RAZA/
+- Updated language keys from "priyansh.*" to "kashif.*"
+- Updated package.json metadata (name, description, author)
+- Updated config.json APIKEY
+
+**Bug Fix**: Fixed protectgroup picture detection
+- Updated event handler to properly map "change_thread_image" to "log:thread-image"
+- Group picture changes now correctly trigger protection system
 
 ## October 15, 2025 - Group Protection Feature
 
