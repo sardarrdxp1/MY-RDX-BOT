@@ -40,13 +40,19 @@ module.exports = function ({ Users, Threads, Currencies }) {
                 logger(global.getText('handleCreateDatabase', 'newThread', threadID), '[ DATABASE ]');
             }
             if (!allUserID.includes(senderID) || !userName.has(senderID)) {
-                const infoUsers = await Users.getInfo(senderID),
-                    setting3 = {};
-                setting3.name = infoUsers.name
-                await Users.createData(senderID, setting3)
-                allUserID.push(senderID) 
-                userName.set(senderID, infoUsers.name)
-                logger(global.getText('handleCreateDatabase', 'newUser', senderID), '[ DATABASE ]');
+                try {
+                    const infoUsers = await Users.getInfo(senderID);
+                    if (infoUsers && infoUsers.name) {
+                        const setting3 = {};
+                        setting3.name = infoUsers.name;
+                        await Users.createData(senderID, setting3);
+                        allUserID.push(senderID);
+                        userName.set(senderID, infoUsers.name);
+                        logger(global.getText('handleCreateDatabase', 'newUser', senderID), '[ DATABASE ]');
+                    }
+                } catch(err) {
+                    console.log('Error getting user info:', err);
+                }
             }
             if (!allCurrenciesID.includes(senderID)) {
                 const setting4 = {};
