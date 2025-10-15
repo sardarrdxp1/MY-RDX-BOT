@@ -17,6 +17,11 @@ module.exports.run = async function({ api, event, args }) {
     const axios = require("axios");
     
     const cachePath = path.join(__dirname, "cache", "protectgroup.json");
+    const cacheDir = path.join(__dirname, "cache");
+    
+    if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+    }
     
     if (!fs.existsSync(cachePath)) {
         fs.writeFileSync(cachePath, JSON.stringify({}, null, 4));
@@ -28,29 +33,46 @@ module.exports.run = async function({ api, event, args }) {
         try {
             const threadInfo = await api.getThreadInfo(threadID);
             
-            let groupImage = null;
+            let cachedImagePath = null;
             if (threadInfo.imageSrc) {
                 try {
-                    const response = await axios.get(threadInfo.imageSrc, { 
-                        responseType: 'arraybuffer' 
+                    const imagePath = path.join(cacheDir, `gc_${threadID}.jpg`);
+                    const response = await axios({
+                        method: 'GET',
+                        url: threadInfo.imageSrc,
+                        responseType: 'stream'
                     });
-                    groupImage = Buffer.from(response.data).toString('base64');
+
+                    const writer = fs.createWriteStream(imagePath);
+                    response.data.pipe(writer);
+
+                    await new Promise((resolve, reject) => {
+                        writer.on('finish', resolve);
+                        writer.on('error', reject);
+                    });
+
+                    cachedImagePath = imagePath;
                 } catch (err) {
-                    console.log("Error downloading group image:", err);
+                    console.log("Error caching group image:", err);
                 }
             }
             
-            // Get theme ID - it could be in different properties
-            const themeId = threadInfo.color || threadInfo.threadColor || threadInfo.theme_id || "196241301102133";
+            // Get theme ID properly
+            let savedThemeID = null;
+            if (threadInfo.threadTheme && threadInfo.threadTheme.id) {
+                savedThemeID = threadInfo.threadTheme.id;
+            } else if (threadInfo.color) {
+                savedThemeID = threadInfo.color;
+            }
             
             protectData[threadID] = {
                 enabled: true,
                 name: threadInfo.threadName || "Unnamed Group",
                 emoji: threadInfo.emoji || "👍",
-                themeId: themeId,
-                image: groupImage,
+                themeId: savedThemeID,
+                imagePath: cachedImagePath,
                 imageSrc: threadInfo.imageSrc || null,
-                hasImage: !!groupImage
+                hasImage: !!cachedImagePath
             };
             
             fs.writeFileSync(cachePath, JSON.stringify(protectData, null, 4));
@@ -60,8 +82,8 @@ module.exports.run = async function({ api, event, args }) {
                 `🔒 Protected Settings:\n` +
                 `📝 Name: ${protectData[threadID].name}\n` +
                 `😊 Emoji: ${protectData[threadID].emoji}\n` +
-                `🎨 Theme ID: ${themeId}\n` +
-                `🖼️ Picture: ${groupImage ? "Protected" : "No picture"}\n\n` +
+                `🎨 Theme ID: ${savedThemeID || 'Default'}\n` +
+                `🖼️ Picture: ${cachedImagePath ? "Cached" : "No picture"}\n\n` +
                 `If anyone changes these settings, the bot will automatically restore them!`,
                 threadID,
                 messageID
@@ -75,6 +97,15 @@ module.exports.run = async function({ api, event, args }) {
     } else if (args[0] === "off") {
         if (!protectData[threadID] || !protectData[threadID].enabled) {
             return api.sendMessage("⚠️ Group protection is already disabled!", threadID, messageID);
+        }
+        
+        // Clean up cached image
+        if (protectData[threadID].imagePath && fs.existsSync(protectData[threadID].imagePath)) {
+            try {
+                fs.unlinkSync(protectData[threadID].imagePath);
+            } catch (err) {
+                console.log("Error deleting cached image:", err);
+            }
         }
         
         protectData[threadID].enabled = false;
@@ -100,8 +131,7 @@ module.exports.run = async function({ api, event, args }) {
             `• Group Name\n` +
             `• Group Picture\n` +
             `• Group Theme\n` +
-            `• Group Emoji\n\n` +
-            `⚠️ Note: Theme restoration may fail due to Facebook API limitations.`,
+            `• Group Emoji`,
             threadID,
             messageID
         );
