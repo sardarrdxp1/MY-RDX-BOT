@@ -288,11 +288,19 @@ module.exports = function ({ api, models }) {
                 
                 const protectgroupPath = __dirname + "/../RAZA/commands/cache/protectgroup.json";
                 
+                // Initialize if not exists
+                if (!global.gcProtectionProcessing) {
+                    global.gcProtectionProcessing = new Map();
+                }
+                
                 if (fs.existsSync(protectgroupPath)) {
                     const protectData = JSON.parse(fs.readFileSync(protectgroupPath, "utf-8"));
                     
                     if (protectData[event.threadID] && protectData[event.threadID].enabled) {
                         const botID = api.getCurrentUserID();
+                        
+                        console.log(`[GC PROTECT] Event detected: ${event.logMessageType} in thread ${event.threadID}`);
+                        console.log(`[GC PROTECT] Author: ${event.author}, Bot: ${botID}`);
                         
                         // Don't restore if bot made the change
                         if (event.author != botID) {

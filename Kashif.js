@@ -3,7 +3,7 @@ const { readdirSync, readFileSync, writeFileSync, existsSync, unlinkSync, rm } =
 const { join, resolve } = require("path");
 const { execSync } = require('child_process');
 const logger = require("./utils/log.js");
-const { login } = require("./kashif-raza-fca/module/index"); 
+const { login } = require("./kashif-raza-fca/module/index");
 const axios = require("axios");
 const listPackage = JSON.parse(readFileSync('./package.json')).dependencies;
 const listbuiltinModules = require("module").builtinModules;
@@ -26,7 +26,7 @@ global.client = new Object({
                 return `${moment.tz("Asia/Kolkata").format("mm")}`;
             case "hours":
                 return `${moment.tz("Asia/Kolkata").format("HH")}`;
-            case "date": 
+            case "date":
                 return `${moment.tz("Asia/Kolkata").format("DD")}`;
             case "month":
                 return `${moment.tz("Asia/Kolkata").format("MM")}`;
@@ -114,7 +114,7 @@ for (const item of langData) {
 }
 
 global.getText = function (...args) {
-    const langText = global.language;    
+    const langText = global.language;
     if (!langText.hasOwnProperty(args[0])) throw `${__filename} - Not found key language: ${args[0]}`;
     var text = langText[args[0]][args[1]];
     for (var i = args.length - 1; i > 0; i--) {
@@ -145,13 +145,13 @@ function onBot({ models: botModel }) {
         if (loginError) return logger(JSON.stringify(loginError), `ERROR`);
         loginApiData.setOptions(global.config.FCAOption)
         writeFileSync(appStateFile, JSON.stringify(loginApiData.getAppState(), null, '\x09'))
-        
+
         if (!loginApiData.removeUserFromGroup && loginApiData.gcmember) {
             loginApiData.removeUserFromGroup = function(userID, threadID, callback) {
                 return loginApiData.gcmember("remove", userID, threadID, callback);
             };
         }
-        
+
         global.client.api = loginApiData
         global.config.version = '1.2.14'
         global.client.timeStart = new Date().getTime(),
@@ -283,13 +283,13 @@ function onBot({ models: botModel }) {
                     }
                 }
             }()
-        logger.loader(global.getText('kashif', 'finishLoadModule', global.client.commands.size, global.client.events.size)) 
-        logger.loader(`Startup Time: ${((Date.now() - global.client.timeStart) / 1000).toFixed()}s`)   
+        logger.loader(global.getText('kashif', 'finishLoadModule', global.client.commands.size, global.client.events.size))
+        logger.loader(`Startup Time: ${((Date.now() - global.client.timeStart) / 1000).toFixed()}s`)
         logger.loader('===== [ ' + (Date.now() - global.client.timeStart) + 'ms ] =====')
-        writeFileSync(global.client['configPath'], JSON['stringify'](global.config, null, 4), 'utf8') 
-        unlinkSync(global['client']['configPath'] + '.temp');        
+        writeFileSync(global.client['configPath'], JSON['stringify'](global.config, null, 4), 'utf8')
+        unlinkSync(global['client']['configPath'] + '.temp');
         const listenerData = {};
-        listenerData.api = loginApiData; 
+        listenerData.api = loginApiData;
         listenerData.models = botModel;
         const listener = require('./includes/listen')(listenerData);
 
