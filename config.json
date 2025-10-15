@@ -229,5 +229,9 @@
     "help2": {
         "autoUnsend": true,
         "delayUnsend": 300
+    },
+    "helpall": {
+        "autoUnsend": true,
+        "delayUnsend": 300
     }
 }
