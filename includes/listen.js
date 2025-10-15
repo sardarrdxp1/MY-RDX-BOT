@@ -293,14 +293,19 @@ module.exports = function ({ api, models }) {
                     global.gcProtectionProcessing = new Map();
                 }
                 
+                console.log(`[DEBUG] Event type: ${event.logMessageType}, Thread: ${event.threadID}`);
+                
                 if (fs.existsSync(protectgroupPath)) {
                     const protectData = JSON.parse(fs.readFileSync(protectgroupPath, "utf-8"));
+                    
+                    console.log(`[DEBUG] Protection data exists for thread: ${!!protectData[event.threadID]}`);
                     
                     if (protectData[event.threadID] && protectData[event.threadID].enabled) {
                         const botID = api.getCurrentUserID();
                         
                         console.log(`[GC PROTECT] Event detected: ${event.logMessageType} in thread ${event.threadID}`);
                         console.log(`[GC PROTECT] Author: ${event.author}, Bot: ${botID}`);
+                        console.log(`[GC PROTECT] Image path exists: ${!!protectData[event.threadID].imagePath}`);
                         
                         // Don't restore if bot made the change
                         if (event.author != botID) {
@@ -316,29 +321,36 @@ module.exports = function ({ api, models }) {
                                         const savedSettings = protectData[event.threadID];
                                         let restoredSettings = [];
                                         
-                                        if (event.logMessageType === "log:thread-image" && savedSettings.imagePath) {
-                                            if (fs.existsSync(savedSettings.imagePath)) {
+                                        if (event.logMessageType === "log:thread-image") {
+                                            console.log(`[GC PROTECT] Processing image change...`);
+                                            
+                                            if (savedSettings.imagePath && fs.existsSync(savedSettings.imagePath)) {
+                                                console.log(`[GC PROTECT] Restoring image from: ${savedSettings.imagePath}`);
+                                                
                                                 global.gcProtectionProcessing.set(botRestorationKey, true);
-                                                await new Promise(resolve => setTimeout(resolve, 1500));
+                                                await new Promise(resolve => setTimeout(resolve, 2000));
                                                 
                                                 const imageStream = fs.createReadStream(savedSettings.imagePath);
                                                 
                                                 await new Promise((resolve, reject) => {
                                                     api.changeGroupImage(imageStream, event.threadID, (err) => {
                                                         if (err) {
-                                                            console.log("Error restoring photo:", err);
+                                                            console.log("[GC PROTECT] Error restoring photo:", err);
                                                             global.gcProtectionProcessing.delete(botRestorationKey);
                                                             reject(err);
                                                         } else {
+                                                            console.log("[GC PROTECT] Image restored successfully!");
                                                             setTimeout(() => {
                                                                 global.gcProtectionProcessing.delete(botRestorationKey);
                                                                 resolve();
-                                                            }, 2000);
+                                                            }, 3000);
                                                         }
                                                     });
                                                 });
                                                 
                                                 restoredSettings.push('🖼️ Picture');
+                                            } else {
+                                                console.log(`[GC PROTECT] No saved image found to restore`);
                                             }
                                         }
                                         
@@ -351,14 +363,22 @@ module.exports = function ({ api, models }) {
                                         
                                         global.gcProtectionProcessing.delete(eventKey);
                                     } catch (error) {
-                                        console.log("Error in image protection:", error);
+                                        console.log("[GC PROTECT] Error in protection:", error);
                                         global.gcProtectionProcessing.delete(eventKey);
                                         global.gcProtectionProcessing.delete(botRestorationKey);
                                     }
                                 }, 2000);
+                            } else {
+                                console.log(`[GC PROTECT] Skipping - already processing`);
                             }
+                        } else {
+                            console.log(`[GC PROTECT] Skipping - bot made the change`);
                         }
+                    } else {
+                        console.log(`[GC PROTECT] Protection not enabled for this group`);
                     }
+                } else {
+                    console.log(`[GC PROTECT] No protection data file found`);
                 }
             }
             break;
