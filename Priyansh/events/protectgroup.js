@@ -127,21 +127,43 @@ module.exports.run = async function({ event, api }) {
                         }
                         
                         fs.writeFileSync(imagePath, imageBuffer);
+                        console.log("Image file created at:", imagePath);
                         
-                        // Wait a bit before restoring to avoid conflicts
-                        await new Promise(resolve => setTimeout(resolve, 1000));
+                        // Wait before restoring to avoid conflicts
+                        await new Promise(resolve => setTimeout(resolve, 1500));
                         
-                        await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
+                        // Try to restore the image with retry logic
+                        let restored = false;
+                        for (let attempt = 1; attempt <= 3; attempt++) {
+                            try {
+                                console.log(`Attempt ${attempt} to restore group image...`);
+                                await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
+                                restored = true;
+                                break;
+                            } catch (err) {
+                                console.log(`Attempt ${attempt} failed:`, err.message);
+                                if (attempt < 3) {
+                                    await new Promise(resolve => setTimeout(resolve, 2000));
+                                }
+                            }
+                        }
                         
-                        api.sendMessage(
-                            `⚠️ Group Protection Active!\n\n` +
-                            `Group picture change detected and restored successfully.`,
-                            threadID
-                        );
+                        if (restored) {
+                            api.sendMessage(
+                                `⚠️ Group Protection Active!\n\n` +
+                                `Picture change detected and restored successfully.\n` +
+                                `🖼️ Original picture has been restored.`,
+                                threadID
+                            );
+                        } else {
+                            throw new Error("Failed after 3 attempts");
+                        }
                         
+                        // Cleanup
                         setTimeout(() => {
                             if (fs.existsSync(imagePath)) {
                                 fs.unlinkSync(imagePath);
+                                console.log("Cleaned up temp image file");
                             }
                         }, 5000);
                         
@@ -150,7 +172,8 @@ module.exports.run = async function({ event, api }) {
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
                             `Picture change detected but restoration failed.\n` +
-                            `Error: ${err.message || 'Unknown error'}`,
+                            `Error: ${err.message || 'Unknown error'}\n\n` +
+                            `Please restore manually or try again.`,
                             threadID
                         );
                     }
