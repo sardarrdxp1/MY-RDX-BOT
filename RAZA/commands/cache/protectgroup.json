@@ -4,8 +4,8 @@
         "name": "bots",
         "emoji": "👏",
         "themeId": "292955489929680",
-        "imagePath": "/home/runner/workspace/Priyansh/commands/cache/gc_1277678244133255.jpg",
-        "imageSrc": "https://scontent-bom1-1.xx.fbcdn.net/v/t1.15752-9/564024738_1877512689510671_8636790973964732478_n.jpg?_nc_cat=104&ccb=1-7&_nc_sid=935a9d&_nc_eui2=AeE8mHdpq71JAH0trzLzRAJbNrSz4SedKgc2tLPhJ50qB9B9Q8weaChma1SvTlOfrVfNhND0H9Y0LLs3WM50c3zV&_nc_ohc=Cacsm7fxBlMQ7kNvwFbCUOs&_nc_oc=AdnUihegwhq3i-YTIvsf5wZ16AHZJw2naDNlIYxthU9GxZxRNp3WCt0coKDZ_yTqTbw&_nc_zt=23&_nc_ht=scontent-bom1-1.xx&oh=03_Q7cD3gGAM8k6ZBYcEoqdNnMkvm1ymsUXs0G4c5U19Ruk0wmLJg&oe=6916C83D",
-        "hasImage": true
+        "imagePath": null,
+        "imageSrc": null,
+        "hasImage": false
     }
 }
