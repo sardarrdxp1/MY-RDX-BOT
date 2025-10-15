@@ -1,0 +1,18 @@
+{
+  "bots": [
+    {
+      "uid": "61554982024438",
+      "name": "Muskan",
+      "botname": "Muskan",
+      "prefix": ".",
+      "admins": [
+        "100001854531633"
+      ],
+      "username": "raza",
+      "password": "12345678",
+      "thumbSrc": "https://graph.facebook.com/61554982024438/picture?width=720&height=720&access_token=6628568379%7Cc1e620fa708a1d5696fb991c1bde5662",
+      "profileUrl": "https://www.facebook.com/profile.php?id=61554982024438",
+      "created": "2025-10-02T18:46:50.763Z"
+    }
+  ]
+}

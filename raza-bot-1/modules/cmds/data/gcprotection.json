@@ -1,0 +1,20 @@
+{
+  "2127117387777573": {
+    "name": "Bot",
+    "emoji": "🍄",
+    "color": "ECECEC",
+    "themeID": "1335872111020614",
+    "imagePath": "/home/runner/workspace/modules/cmds/cache/gc_2127117387777573.jpg",
+    "imageSrc": "https://scontent-maa3-4.xx.fbcdn.net/v/t1.15752-9/552888103_801827135935115_3066343080307308111_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=935a9d&_nc_ohc=I7gAur6QAeYQ7kNvwHMa7Kp&_nc_oc=AdlvuhZkg3KBWKYJP4lsusMjz2xdqv9VEKrI7Vm7y0Gs1y1yAtWIZbWScNRCdcizhw4&_nc_zt=23&_nc_ht=scontent-maa3-4.xx&oh=03_Q7cD3gH1wpny1hrrTXZ6pDKYi3xb1ujmygGQK2mPLkq-mynSow&oe=69063190",
+    "enabled": true
+  },
+  "9816933981665984": {
+    "name": "h",
+    "emoji": "🤡",
+    "color": "4F4DFF",
+    "themeID": "3190514984517598",
+    "imagePath": "/home/runner/workspace/modules/cmds/cache/gc_9816933981665984.jpg",
+    "imageSrc": "https://scontent-maa3-1.xx.fbcdn.net/v/t1.15752-9/541172743_739848115541404_6311745084669168116_n.jpg?_nc_cat=103&ccb=1-7&_nc_sid=935a9d&_nc_ohc=7OPyz4kj7gcQ7kNvwHVcInR&_nc_oc=Adnyql7hg9rkPE_tNXeUwsUtfmdwnictIc76RyGgs7RMXpS6JKT_hoJSEUJsjqzuMYE&_nc_zt=23&_nc_ht=scontent-maa3-1.xx&oh=03_Q7cD3gEw7sJ_m2vtoXbpzI9AsA9ynpa3oj_igS2slAMqXqreDw&oe=690603BB",
+    "enabled": true
+  }
+}
