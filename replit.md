@@ -190,6 +190,24 @@ Preferred communication style: Simple, everyday language.
 **Note**: Application uses configurable database type - can be extended to support other databases through the models layer.
 # Recent Changes
 
+## October 15, 2025 - Dashboard Improvements & Auto-Restart
+
+**Dashboard Auto-Restart Feature**:
+- Added automatic bot restart when config/appstate is updated from dashboard
+- No longer requires full server restart - bot restarts in 2 seconds after config changes
+- Implemented manual restart flag to prevent double-spawning
+- Crash-restart budget preserved for actual failures only
+
+**Config Temp File Removal**:
+- Removed config.json.temp file creation and deletion
+- Simplified config loading logic in Kashif.js
+- Cleaner file structure without temporary files
+
+**Dashboard Security Enhancement**:
+- Obfuscated dashboard JavaScript code (includes/public/index.html)
+- Used advanced obfuscation techniques: RC4 string encoding, control flow flattening, dead code injection
+- Makes dashboard code harder to modify or reverse engineer
+
 ## October 15, 2025 - Complete Rebranding & Bug Fixes
 
 **Rebranding**: Complete rebranding from "Priyansh" to "Kashif Raza"
