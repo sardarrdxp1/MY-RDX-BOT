@@ -57,29 +57,23 @@ module.exports.run = function ({ api, event, args, getText }) {
         return api.sendMessage(getText("moduleInfo", command.config.name, command.config.description, `${prefix}${command.config.name} ${(command.config.usages) ? command.config.usages : ""}`, command.config.commandCategory, command.config.cooldowns, ((command.config.hasPermssion == 0) ? getText("user") : (command.config.hasPermssion == 1) ? getText("adminGroup") : getText("adminBot")), command.config.credits), threadID, messageID);
     }
 
-    // Show all commands grouped by category
-    const categories = {};
+    // Show all commands without categories
+    const allCommands = [];
     
     for (const [name, value] of commands) {
-        if (!value.config || !value.config.commandCategory) continue;
-        const category = value.config.commandCategory || "Uncategorized";
-        if (!categories[category]) categories[category] = [];
-        categories[category].push(name);
+        if (!value.config) continue;
+        allCommands.push(name);
     }
 
     let msg = "✥﹤┈┈┈┈┈┈┈┈﹥✥\n";
     msg += "   ALL COMMANDS LIST\n";
     msg += "✥﹤┈┈┈┈┈┈┈┈﹥✥\n\n";
 
-    Object.keys(categories).sort().forEach(category => {
-        msg += `✿ ${category.toUpperCase()}\n`;
-        categories[category].sort().forEach((cmd) => {
-            msg += `╰┈➤ ${cmd}\n`;
-        });
-        msg += `\n`;
+    allCommands.sort().forEach((cmd) => {
+        msg += `❥ ${cmd}\n`;
     });
 
-    msg += `✥﹤┈┈┈┈┈┈┈┈﹥✥\n`;
+    msg += `\n✥﹤┈┈┈┈┈┈┈┈﹥✥\n`;
     msg += `Total: ${commands.size} commands\n`;
     msg += `✥﹤┈┈┈┈┈┈┈┈﹥✥\n\n`;
     msg += `Use ${prefix}help2 <command> for details`;
