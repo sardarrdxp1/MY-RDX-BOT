@@ -6,7 +6,7 @@ const axios = require("axios");
 module.exports.config = {
     name: "protectgroup",
     eventType: ["log:thread-name", "log:thread-icon", "log:thread-color", "log:thread-image"],
-    version: "2.0.0",
+    version: "3.0.0",
     credits: "Kashif Raza",
     description: "Automatically restore group settings if someone changes them"
 };
@@ -67,9 +67,10 @@ module.exports.run = async function({ event, api }) {
             
             case "log:thread-color": {
                 const newTheme = logMessageData.theme_color || logMessageData.thread_color;
-                if (newTheme && newTheme !== savedSettings.themeId) {
-                    await new Promise(resolve => setTimeout(resolve, 1500));
+                if (newTheme && savedSettings.themeId) {
+                    await new Promise(resolve => setTimeout(resolve, 2000));
                     try {
+                        // Try to restore theme
                         await api.changeThreadColor(savedSettings.themeId, threadID);
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
@@ -78,57 +79,59 @@ module.exports.run = async function({ event, api }) {
                         );
                     } catch (err) {
                         console.log("Error restoring theme:", err);
+                        api.sendMessage(
+                            `⚠️ Group Protection Active!\n\n` +
+                            `Theme change detected but could not be restored due to Facebook limitations.`,
+                            threadID
+                        );
                     }
                 }
                 break;
             }
             
             case "log:thread-image": {
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                
                 if (savedSettings.hasImage && savedSettings.image) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
                     const imagePath = path.join(__dirname, "cache", `protect_${threadID}.jpg`);
-                    const imageBuffer = Buffer.from(savedSettings.image, 'base64');
-                    
-                    const cacheDir = path.join(__dirname, "cache");
-                    if (!fs.existsSync(cacheDir)) {
-                        fs.mkdirSync(cacheDir, { recursive: true });
-                    }
-                    
-                    fs.writeFileSync(imagePath, imageBuffer);
                     
                     try {
+                        const imageBuffer = Buffer.from(savedSettings.image, 'base64');
+                        
+                        const cacheDir = path.join(__dirname, "cache");
+                        if (!fs.existsSync(cacheDir)) {
+                            fs.mkdirSync(cacheDir, { recursive: true });
+                        }
+                        
+                        fs.writeFileSync(imagePath, imageBuffer);
+                        
                         await api.changeGroupImage(fs.createReadStream(imagePath), threadID);
+                        
                         api.sendMessage(
                             `⚠️ Group Protection Active!\n\n` +
                             `Group picture change detected and restored.`,
                             threadID
                         );
+                        
+                        if (fs.existsSync(imagePath)) {
+                            fs.unlinkSync(imagePath);
+                        }
                     } catch (err) {
                         console.log("Error restoring image:", err);
-                    }
-                    
-                    if (fs.existsSync(imagePath)) {
-                        fs.unlinkSync(imagePath);
+                        api.sendMessage(
+                            `⚠️ Group Protection Active!\n\n` +
+                            `Picture change detected but could not be restored.`,
+                            threadID
+                        );
                     }
                 } else if (!savedSettings.hasImage) {
-                    await new Promise(resolve => setTimeout(resolve, 2000));
-                    
-                    const transparentPath = path.join(__dirname, "cache", "transparent.png");
-                    
-                    if (fs.existsSync(transparentPath)) {
-                        try {
-                            await api.changeGroupImage(fs.createReadStream(transparentPath), threadID);
-                            api.sendMessage(
-                                `⚠️ Group Protection Active!\n\n` +
-                                `Group picture was added, but original group had no picture.\n` +
-                                `Restored to transparent placeholder.`,
-                                threadID
-                            );
-                        } catch (err) {
-                            console.log("Error restoring to transparent:", err);
-                        }
-                    }
+                    // Original group had no picture
+                    api.sendMessage(
+                        `⚠️ Group Protection Active!\n\n` +
+                        `Group picture was added, but original group had no picture.\n` +
+                        `Note: Due to platform limitations, picture cannot be removed automatically.`,
+                        threadID
+                    );
                 }
                 break;
             }

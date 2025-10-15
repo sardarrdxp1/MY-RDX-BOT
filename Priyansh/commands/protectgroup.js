@@ -1,15 +1,16 @@
+
 module.exports.config = {
     name: "protectgroup",
-    version: "1.0.0",
+    version: "2.0.0",
     hasPermssion: 1,
-    credits: "𝙋𝙧𝙞𝙮𝙖𝙣𝙨𝙝 𝙍𝙖𝙟𝙥𝙪𝙩",
-    description: "Group settings ko protect karo (name, picture, theme, emoji)",
+    credits: "Kashif Raza",
+    description: "Protect group settings (name, picture, theme, emoji)",
     commandCategory: "Group",
     usages: "protectgroup on/off",
     cooldowns: 5
 };
 
-module.exports.run = async function({ api, event, args, Threads }) {
+module.exports.run = async function({ api, event, args }) {
     const { threadID, messageID } = event;
     const fs = require("fs-extra");
     const path = require("path");
@@ -39,11 +40,14 @@ module.exports.run = async function({ api, event, args, Threads }) {
                 }
             }
             
+            // Get theme ID - it could be in different properties
+            const themeId = threadInfo.color || threadInfo.threadColor || threadInfo.theme_id || "196241301102133";
+            
             protectData[threadID] = {
                 enabled: true,
                 name: threadInfo.threadName || "Unnamed Group",
                 emoji: threadInfo.emoji || "👍",
-                themeId: threadInfo.color || "196241301102133",
+                themeId: themeId,
                 image: groupImage,
                 imageSrc: threadInfo.imageSrc || null,
                 hasImage: !!groupImage
@@ -56,21 +60,21 @@ module.exports.run = async function({ api, event, args, Threads }) {
                 `🔒 Protected Settings:\n` +
                 `📝 Name: ${protectData[threadID].name}\n` +
                 `😊 Emoji: ${protectData[threadID].emoji}\n` +
-                `🎨 Theme: Protected\n` +
+                `🎨 Theme ID: ${themeId}\n` +
                 `🖼️ Picture: ${groupImage ? "Protected" : "No picture"}\n\n` +
-                `Ab koi bhi in settings ko change karega to bot automatically restore kar dega!`,
+                `If anyone changes these settings, the bot will automatically restore them!`,
                 threadID,
                 messageID
             );
             
         } catch (error) {
             console.log("Error enabling protection:", error);
-            return api.sendMessage("❌ Protection enable karne me error aaya!", threadID, messageID);
+            return api.sendMessage("❌ Error enabling protection!", threadID, messageID);
         }
         
     } else if (args[0] === "off") {
         if (!protectData[threadID] || !protectData[threadID].enabled) {
-            return api.sendMessage("⚠️ Group protection pehle se hi disabled hai!", threadID, messageID);
+            return api.sendMessage("⚠️ Group protection is already disabled!", threadID, messageID);
         }
         
         protectData[threadID].enabled = false;
@@ -78,23 +82,26 @@ module.exports.run = async function({ api, event, args, Threads }) {
         
         return api.sendMessage(
             `🔓 Group Protection Disabled!\n\n` +
-            `Ab group settings freely change kar sakte ho.`,
+            `Group settings can now be changed freely.`,
             threadID,
             messageID
         );
         
     } else {
+        const status = protectData[threadID] && protectData[threadID].enabled ? "🔒 Enabled" : "🔓 Disabled";
+        
         return api.sendMessage(
             `📋 Group Protection Command\n\n` +
-            `Usage: protectgroup on/off\n\n` +
-            `💡 protectgroup on - Group settings lock kar do\n` +
-            `💡 protectgroup off - Protection disable kar do\n\n` +
+            `Current Status: ${status}\n\n` +
+            `Usage:\n` +
+            `• protectgroup on - Lock group settings\n` +
+            `• protectgroup off - Disable protection\n\n` +
             `Protected Settings:\n` +
             `• Group Name\n` +
             `• Group Picture\n` +
             `• Group Theme\n` +
             `• Group Emoji\n\n` +
-            `⚠️ Note: Agar group me originally koi picture nahi thi, to bot transparent image use karega (platform limitation).`,
+            `⚠️ Note: Theme restoration may fail due to Facebook API limitations.`,
             threadID,
             messageID
         );

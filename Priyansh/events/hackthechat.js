@@ -5,13 +5,13 @@ const path = require("path");
 module.exports.config = {
     name: "hackthechat",
     eventType: ["message", "message_reply"],
-    version: "1.0.0",
+    version: "2.0.0",
     credits: "Kashif Raza",
     description: "Block messages when chat is locked"
 };
 
 module.exports.run = async function({ event, api }) {
-    const { threadID, senderID, messageID } = event;
+    const { threadID, senderID, messageID, body } = event;
     
     const cachePath = path.join(__dirname, "../commands/cache", "hackthechat.json");
     
@@ -35,10 +35,14 @@ module.exports.run = async function({ event, api }) {
         return;
     }
     
-    // Block the message by unsending it
+    // Block the message by unsending it immediately
     try {
         await api.unsendMessage(messageID);
+        console.log(`[HACK THE CHAT] Blocked message from user ${senderID} in thread ${threadID}`);
     } catch (err) {
         console.log("Error blocking message:", err);
     }
+    
+    // Prevent further processing of this message
+    return true;
 };
