@@ -16,13 +16,13 @@
     "EMAIL": "",
     "PASSWORD": "",
     "OTPKEY": "",
-    "BOTNAME": "Muskan",
-    "PREFIX": ".",
+    "BOTNAME": "𝗥𝗗𝗫 𝗛𝗘𝗥𝗘 𝗕𝗔𝗕𝗬",
+    "PREFIX": "*",
     "ADMINBOT": [
-        "100001854531633"
+        "100004484615198"
     ],
     "NDH": [
-        "100001854531633"
+        "100004484615198"
     ],
     "DATABASE": {
         "sqlite": {
